@@ -119,7 +119,7 @@ class TerminalTestAufgabe3 {
 
         val kahn = Kahn()
 
-        kahn.auftrag = (terminal.avisierung(10, intArrayOf(), intArrayOf(cont2.id)))
+        kahn.auftrag = terminal.avisierung(10, intArrayOf(), intArrayOf(cont2.id))
         Uhr.incZeit(10)
 
         var contractFailure = false

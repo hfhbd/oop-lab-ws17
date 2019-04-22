@@ -74,7 +74,7 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
      * @return true if the stack is loadeable
      */
     private fun isLoadeable(stack: Stack<Container>): Boolean {
-        return stack.size != stack.capacity && (stack.last == null || stack.last!!.content.istStabil())
+        return stack.size != stack.capacity && (stack.last == null || stack.last!!.content.isStable)
     }
 
     /**

@@ -60,13 +60,13 @@ class TerminalTestAufgabe1 {
         // Der erste Container hat eine ID>0 und hat keine stabile Bauweise
         Assert.assertEquals("Luftmatrazen", cont1.beschreibung)
         Assert.assertTrue(cont1.id > 0)
-        Assert.assertEquals(false, cont1.istStabil())
+        Assert.assertEquals(false, cont1.isStable)
 
         // Der zweite Container hat die ID 2 und hat eine stabile Bauweise
         // Container-IDs werdem fortlaufend automatisch vergeben
         Assert.assertEquals("Strandbar", cont2.beschreibung)
         Assert.assertEquals(cont1.id + 1, cont2.id)
-        Assert.assertEquals(true, cont2.istStabil())
+        Assert.assertTrue(cont2.isStable)
 
     }
 
@@ -77,11 +77,11 @@ class TerminalTestAufgabe1 {
             val cont1 = Container(false, "Luftmatrazen")
             val cont2 = Container(true, "Strandbar")
             val cont1ID = cont1.id
-            val cont1SB = cont1.istStabil()
+            val cont1SB = cont1.isStable
             val cont1Bes = cont1.beschreibung
 
             val cont2ID = cont2.id
-            val cont2SB = cont2.istStabil()
+            val cont2SB = cont2.isStable
             val cont2Bes = cont2.beschreibung
 
             // Neuer LKW
@@ -142,11 +142,11 @@ class TerminalTestAufgabe1 {
             // ge�ndert
             Assert.assertEquals(cont1Bes, cont1.beschreibung)
             Assert.assertEquals(cont1ID, cont1.id)
-            Assert.assertEquals(cont1SB, cont1.istStabil())
+            Assert.assertEquals(cont1SB, cont1.isStable)
 
             Assert.assertEquals(cont2Bes, cont2.beschreibung)
             Assert.assertEquals(cont2ID, cont2.id)
-            Assert.assertEquals(cont2SB, cont2.istStabil())
+            Assert.assertEquals(cont2SB, cont2.isStable)
         } catch (e: Exception) {
             e.printStackTrace()
             Assert.fail()
@@ -185,8 +185,7 @@ class TerminalTestAufgabe1 {
 			 */
 
             val lkw2 = LKW()
-            lkw2.auftrag = (terminal.avisierung(2120,
-                    intArrayOf(cont1.id), intArrayOf(cont2.id)))
+            lkw2.auftrag = (terminal.avisierung(2120, intArrayOf(cont1.id), intArrayOf(cont2.id)))
             lkw2.belade(cont1)
 
             Assert.assertEquals(1, lkw2.genutzteKapazitaet)

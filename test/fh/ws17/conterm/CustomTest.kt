@@ -51,27 +51,19 @@ class CustomTest {
     @Test
     @Throws(ContractFailureException::class)
     fun WrongIDInVehicle() {
+        val cont1 = Container(false, "Luftmatrazen")
 
-        try {
-            val cont1 = Container(false, "Luftmatrazen")
+        val cont3 = Container(true, "Motorboot")
 
-            val cont3 = Container(true, "Motorboot")
-
-            val terminal = Terminal(4, 1)
+        val terminal = Terminal(4, 1)
 
 
-            val lkw = LKW()
+        val lkw = LKW()
 
-            lkw.belade(cont1)
-
-            lkw.auftrag = terminal.avisierung(10, intArrayOf(cont3.id), intArrayOf())
-            Uhr.incZeit(10)
-            terminal.abfertigung(lkw)
-
-        } catch (e: ContractFailureException) {
-            e.printStackTrace()
-            //Assert.fail();
-        }
+        lkw.belade(cont1)
+        lkw.auftrag = terminal.avisierung(10, intArrayOf(cont3.id), intArrayOf())
+        Uhr.incZeit(10)
+        terminal.abfertigung(lkw)
     }
 
 

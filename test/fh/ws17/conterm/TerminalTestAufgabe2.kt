@@ -169,11 +169,11 @@ class TerminalTestAufgabe2 {
             // ge�ndert
             Assert.assertEquals("Luftmatrazen", cont1.beschreibung)
             Assert.assertEquals(cont1ID, cont1.id)
-            Assert.assertEquals(true, cont1.istStabil())
+            Assert.assertEquals(true, cont1.isStable)
 
             Assert.assertEquals("Strandbar", cont2.beschreibung)
             Assert.assertEquals(cont2ID, cont2.id)
-            Assert.assertEquals(true, cont2.istStabil())
+            Assert.assertEquals(true, cont2.isStable)
         } catch (e: Exception) {
             e.printStackTrace()
             Assert.fail()

@@ -18,7 +18,7 @@ internal class ContainerButton(val container: Container?, value: EventHandler<in
         if (container == null) {
             imageView.effect = BoxBlur(5.0, 5.0, 3)
             this.isDisable = true
-        } else if (container.istStabil()) {
+        } else if (container.isStable) {
             imageView.effect = ColorAdjust(-0.8, -0.8, 0.0, -0.8)
         }
         graphic = imageView
