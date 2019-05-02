@@ -19,7 +19,7 @@ class OtherTests {
             terminal.belade(Container(true, ""))
         }
         Assert.assertEquals(0, terminal.freieKapazitaet)
-        Assert.assertEquals((max * max), terminal.genutzteKapazitaet)
+        Assert.assertEquals(max * max, terminal.genutzteKapazitaet)
         Assert.assertEquals(0, terminal.anzahlBewegungen)
         var exception = false
         try {
@@ -39,7 +39,7 @@ class OtherTests {
     fun testIDsNotInVehicle() {
         val terminal = Terminal(max, max)
 
-        Assert.assertEquals((max * max), terminal.freieKapazitaet)
+        Assert.assertEquals(max * max, terminal.freieKapazitaet)
         Assert.assertEquals(0, terminal.genutzteKapazitaet)
         Assert.assertEquals(0, terminal.anzahlBewegungen)
 

@@ -12,9 +12,5 @@ object Uhr {
         this.zeit = 0
     }
 
-    override fun toString(): String {
-        return "Uhr{" +
-                "time=" + this.zeit +
-                '}'.toString()
-    }
+    override fun toString() = "Uhr{time=$zeit}"
 }

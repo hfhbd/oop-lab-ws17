@@ -25,9 +25,5 @@ internal class ContainerButton(val container: Container?, value: EventHandler<in
         onMouseClicked = value
     }
 
-    override fun toString(): String {
-        return "ContainerButton{" +
-                "container=" + container +
-                '}'.toString()
-    }
+    override fun toString() = "ContainerButton{container=$container}"
 }

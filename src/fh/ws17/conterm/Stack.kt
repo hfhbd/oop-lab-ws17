@@ -7,10 +7,12 @@ import java.beans.PropertyChangeSupport
 
 class Stack<T : Comparable<T>> internal constructor(sizeInit: Int = -1) : Iterable<T>, Comparable<Stack<T>> {
     private val pcs = PropertyChangeSupport(this)
+
     internal var last: Element<T>? = null
+
     var size = sizeInit
         private set
-    var capacity: Int = 0
+    var capacity = 0
         private set
 
     fun addPropertyChangeListener(listener: PropertyChangeListener) {
@@ -59,34 +61,35 @@ class Stack<T : Comparable<T>> internal constructor(sizeInit: Int = -1) : Iterab
         return null
     }
 
-    fun add(t: T): Boolean {
-        val toAdd = Element(t)
-        if (capacity == 0) {
+    fun add(t: T) = when {
+        capacity == 0 -> {
+            val toAdd = Element(t)
             last = toAdd
             capacity += 1
             pcs.firePropertyChange(ChangedEvent())
-            return true
-        } else if (capacity != size) {
+            true
+        }
+        capacity != size -> {
+            val toAdd = Element(t)
             toAdd.previous = last
             last!!.next = toAdd
             last = last!!.next
             capacity += 1
             pcs.firePropertyChange(ChangedEvent())
-            return true
+            true
         }
-        return false
+        else -> false
     }
 
     operator fun contains(toSearch: T) = getDistanceFromTopTo(toSearch) != null
 
     override fun toString(): String {
-        val string = StringBuilder()
-        for (t in this) {
-            string.append("{").append(t).append("}")
+        val string = StringBuilder("Stack with $size used with $capacity:")
+        forEach {
+            string.append("{").append(it).append("}")
         }
         return string.toString()
     }
-
 
     override fun compareTo(other: Stack<T>) = Integer.compare(capacity, other.capacity)
 

@@ -1,6 +1,5 @@
 package fh.ws17.conterm
 
-import java.util.Arrays
 import java.util.HashSet
 
 class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.Structure(spaces, height)) {
@@ -60,7 +59,7 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
         }
 
     /**
-     * Lade the requested container at the best stack to have a balanced terminal stock
+     * Lade the requested container at the best stack to have a balanced terminal stacks
      *
      * @param cont1 to lade
      * @return true if success
@@ -81,7 +80,6 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
      * @return true if success
      * @throws ContractFailureException if contract failed
      */
-    @Throws(ContractFailureException::class)
     override fun entlade(id: Int): Container {
         val rightStack = this.stock.getRightStack(id) ?: throw ContractFailureException()
         var top = rightStack.seeTop()!!
@@ -102,7 +100,7 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
      * @param containerOutbound of the outcoming container
      * @return an copy of the order or null if the order is already set
      */
-    fun avisierung(scheduledTime: Int, containerInbound: IntArray, containerOutbound: IntArray): Order? {
+    fun avisierung(scheduledTime: Int, containerInbound: IntArray = intArrayOf(), containerOutbound: IntArray = intArrayOf()): Order? {
         val order = OrderImpl(scheduledTime, containerInbound, containerOutbound, null, null)
         return if (this.charges.add(order)) {
             order.clone()
@@ -133,7 +131,7 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
      * @param vehicleOrder to copy of the order
      * @return the original order
      */
-    private fun getOrder(vehicleOrder: Order): Order? = this.charges.find { it == vehicleOrder }
+    private fun getOrder(vehicleOrder: Order) = this.charges.find { it == vehicleOrder }
 
     /**
      * Handling the vehicle
@@ -143,7 +141,6 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
      * @return true if success
      * @throws ContractFailureException if contract failed
      */
-    @Throws(ContractFailureException::class)
     fun abfertigung(vehicle: Vehicle): Boolean {
         vehicle.auftrag?.let {
             //Testing if order is registered in TerminalController
@@ -219,16 +216,10 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
         return sum
     }
 
-    override fun toString(): String {
-        return "Terminal{" +
-                "charges=" + this.charges +
-                ", moves=" + this.anzahlBewegungen +
-                ", stock=" + this.stock +
-                '}'.toString()
-    }
+    override fun toString() = "Terminal{ charges= $charges, moves= $anzahlBewegungen, stacks= $stock}"
 
     interface Order {
-        var isOriginal: Boolean
+        val isOriginal: Boolean
         val scheduledTime: Int
         val containerInbound: IntArray
         val containerOutbound: IntArray
@@ -252,7 +243,7 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
         constructor(container: Container) : this(Uhr.zeit, intArrayOf(container.id), intArrayOf(container.id))
 
         override fun hashCode(): Int {
-            return scheduledTime + (Arrays.hashCode(containerInbound)) + Arrays.hashCode(containerOutbound)
+            return scheduledTime + containerInbound.hashCode() + containerOutbound.hashCode()
         }
 
         override fun clone(): Order {

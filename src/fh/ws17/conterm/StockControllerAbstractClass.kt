@@ -11,23 +11,25 @@ abstract class StockControllerAbstractClass internal constructor(structure: Stoc
     internal val stock = Stock(structure)
 
     /**
-     * Get the used capacity of the stock
+     * Get the used capacity of the stacks
      *
-     * @return the used capacity of the stock
+     * @return the used capacity of the stacks
      */
     /**
-     * Get the used capacity of the stock
+     * Get the used capacity of the stacks
      *
-     * @return the used capacity of the stock
+     * @return the used capacity of the stacks
      */
-    val genutzteKapazitaet = this.stock.used
+    val genutzteKapazitaet: Int
+        get() = this.stock.used
 
     /**
-     * Get the free capacity of the stock
+     * Get the free capacity of the stacks
      *
-     * @return the free capacity of the stock
+     * @return the free capacity of the stacks
      */
-    val freieKapazitaet = this.stock.free
+    val freieKapazitaet: Int
+        get() = this.stock.free
 
     fun addPropertyChangeListener(listener: PropertyChangeListener) {
         stock.addPropertyChangeListener(listener)
@@ -58,11 +60,10 @@ abstract class StockControllerAbstractClass internal constructor(structure: Stoc
      * @return true if success
      * @throws ContractFailureException if the container was not found
      */
-    @Throws(ContractFailureException::class)
     internal open fun entlade(id: Int) = this.stock.unladeTop(id)
 
     /**
-     * Checked whether the requested container is in the stock
+     * Checked whether the requested container is in the stacks
      *
      * @param id of the requested container
      * @return true if found
@@ -70,13 +71,12 @@ abstract class StockControllerAbstractClass internal constructor(structure: Stoc
     fun enthaelt(id: Int) = this.stock.contains(id)
 
     /**
-     * Transshipping the requested container inside the stock
+     * Transshipping the requested container inside the stacks
      *
      * @param container the transshipping container
      * @return true if success
      * @throws ContractFailureException if contract failed
      */
-    @Throws(ContractFailureException::class)
     internal fun umlade(container: Container): Boolean {
         val current = this.stock.getRightStack(container.id) ?: throw ContractFailureException()
         val next = this.stock.getOtherStack(container.id)
@@ -85,11 +85,11 @@ abstract class StockControllerAbstractClass internal constructor(structure: Stoc
     }
 
     /**
-     * Get all container of the stock
+     * Get all container of the stacks
      *
      * @return all container
      */
     override fun iterator() = this.stock.iterator()
 
-    override fun toString() = "StockControllerAbstractClass{stock=$stock}"
+    override fun toString() = "StockControllerAbstractClass{stacks=$stock}"
 }

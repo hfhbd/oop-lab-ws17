@@ -17,21 +17,19 @@ abstract class StockController<Model : StockControllerAbstractClass>(val model: 
     private val grid: GridPane
         get() {
             val gridpane = GridPane()
-            val stock = model.stock.stock
+            val stock = model.stock.stacks
 
-            for (row in 0 until stock.size) {
-                for (column in 0 until stock.elementAt(row).size) {
-
-                    gridpane.add(ContainerButton(stock.elementAt(row).elementAt(column), EventHandler { this.containerClicked(it) }), column, row - 1)
+            for (column in 0 until stock.size) {
+                for (row in 0 until stock.elementAt(column).size) {
+                    val container = stock.elementAtOrNull(column)?.elementAtOrNull(row)
+                    gridpane.add(ContainerButton(container, EventHandler { this.containerClicked(it) }), column, row)
                 }
             }
-
             return gridpane
         }
 
     val title: String
         get() = this.model.javaClass.simpleName
-
 
     init {
         this.model.addPropertyChangeListener(this)
@@ -65,12 +63,7 @@ abstract class StockController<Model : StockControllerAbstractClass>(val model: 
 
     internal abstract fun questionMarkClicked(event: MouseEvent)
 
-    override fun toString(): String {
-        return "StockController{" +
-                "model=" + this.model +
-                ", propertyChangeSupport=" + this.propertyChangeSupport +
-                '}'.toString()
-    }
+    override fun toString() = "StockController{model=$model, propertyChangeSupport=$propertyChangeSupport}"
 
     fun incTime(i: Int) {
         Uhr.incZeit(i)

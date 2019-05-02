@@ -8,88 +8,61 @@ class CustomTest {
 
 
     @Test
-    @Throws(CapacityExceededException::class, ContractFailureException::class)
     fun testEinliefern() {
+        val cont1 = Container(false, "Luftmatrazen")
+        val cont2 = Container(true, "Möbel")
+        val cont3 = Container(true, "Motorboot")
+        val cont4 = Container(true, "Schlauchboot")
+        val terminal = Terminal(3, 1)
 
+        terminal.freieKapazitaet
 
-        try {
-            val cont1 = Container(false, "Luftmatrazen")
-            val cont2 = Container(true, "M�bel")
-            val cont3 = Container(true, "Motorboot")
-            val cont4 = Container(true, "Schlauchboot")
-            val terminal = Terminal(3, 1)
+        val kahn = Kahn()
 
+        Assert.assertTrue(kahn.belade(cont3))
+        Assert.assertTrue(kahn.belade(cont2))
+        Assert.assertTrue(kahn.belade(cont1))
+        Assert.assertFalse(kahn.belade(cont4))
 
-            terminal.freieKapazitaet
+        Assert.assertEquals(3, kahn.genutzteKapazitaet)
 
-            val kahn = Kahn()
+        kahn.auftrag = terminal.avisierung(10, intArrayOf(cont3.id, cont2.id, cont1.id))
+        Uhr.incZeit(10)
+        terminal.abfertigung(kahn)
 
-            kahn.belade(cont3)
-            kahn.belade(cont2)
-            kahn.belade(cont1)
-            kahn.belade(cont4)
-
-
-            Assert.assertEquals(3, kahn.genutzteKapazitaet)
-
-            kahn.auftrag = terminal.avisierung(10, intArrayOf(cont3.id, cont2.id, cont1.id, cont4.id), intArrayOf())
-            Uhr.incZeit(10)
-            terminal.abfertigung(kahn)
-
-            Assert.assertEquals(0, kahn.genutzteKapazitaet)
-
-            Assert.assertEquals(0, terminal.freieKapazitaet)
-
-        } catch (e: CapacityExceededException) {
-
-            e.printStackTrace()
-            //Assert.fail();
-        }
-
+        Assert.assertEquals(0, kahn.genutzteKapazitaet)
+        Assert.assertEquals(0, terminal.freieKapazitaet)
     }
 
-    @Test
-    @Throws(ContractFailureException::class)
-    fun WrongIDInVehicle() {
+    @Test(expected = ContractFailureException::class)
+    fun wrongIDInVehicle() {
         val cont1 = Container(false, "Luftmatrazen")
-
         val cont3 = Container(true, "Motorboot")
 
         val terminal = Terminal(4, 1)
 
-
         val lkw = LKW()
 
         lkw.belade(cont1)
-        lkw.auftrag = terminal.avisierung(10, intArrayOf(cont3.id), intArrayOf())
+        lkw.auftrag = terminal.avisierung(10, intArrayOf(cont3.id))
         Uhr.incZeit(10)
         terminal.abfertigung(lkw)
     }
 
 
-    @Test
-    @Throws(ContractFailureException::class)
-    fun ContainerNotInTerminal() {
+    @Test(expected = ContractFailureException::class)
+    fun containerNotInTerminal() {
 
-        try {
-            val cont1 = Container(false, "Luftmatrazen")
-            val cont3 = Container(true, "Motorboot")
-            val terminal = Terminal(4, 1)
+        val cont1 = Container(false, "Luftmatrazen")
+        val cont3 = Container(true, "Motorboot")
+        val terminal = Terminal(4, 1)
 
+        val lkw = LKW()
 
-            val lkw = LKW()
+        lkw.belade(cont1)
 
-            lkw.belade(cont1)
-
-            lkw.auftrag = terminal.avisierung(10, intArrayOf(), intArrayOf(cont3.id)) //cont1.getID()
-            Uhr.incZeit(10)
-            terminal.abfertigung(lkw)
-        } catch (e: ContractFailureException) {
-
-            e.printStackTrace()
-            //Assert.fail();
-        }
-
+        lkw.auftrag = terminal.avisierung(10, containerOutbound = intArrayOf(cont3.id))
+        Uhr.incZeit(10)
+        terminal.abfertigung(lkw)
     }
-
 }

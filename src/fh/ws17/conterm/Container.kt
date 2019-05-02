@@ -7,13 +7,9 @@ class Container private constructor(val isStable: Boolean, val beschreibung: Str
 
     constructor(stable: Boolean, beschreibung: String) : this(stable, beschreibung, idCounter++)
 
-    override fun equals(other: Any?): Boolean {
-        return other is Container && other.id == this.id
-    }
+    override fun equals(other: Any?) = other is Container && other.id == this.id
 
-    override fun toString(): String {
-        return "ID: " + this.id + " : " + this.isStable + ": " + this.beschreibung
-    }
+    override fun toString() = "ID: " + this.id + " : " + this.isStable + ": " + this.beschreibung
 
     override fun compareTo(other: Container) = Integer.compare(id, other.id)
 

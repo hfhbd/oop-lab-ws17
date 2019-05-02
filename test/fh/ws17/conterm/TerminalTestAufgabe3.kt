@@ -7,14 +7,12 @@ import org.junit.Test
 class TerminalTestAufgabe3 {
 
     @Before
-    @Throws(Exception::class)
     fun setUp() {
         /* vor jedem Test die Uhr zur�cksetzen */
         Uhr.reset()
     }
 
-    @Test(timeout = TIMEOUT)
-    @Throws(ContractFailureException::class)
+    @Test(expected = CapacityExceededException::class)
     fun testCapExceeded() {
 
         val terminal = Terminal(1, 1)
@@ -25,7 +23,7 @@ class TerminalTestAufgabe3 {
         val kahn = Kahn()
         kahn.belade(cont1)
 
-        kahn.auftrag = (terminal.avisierung(10, intArrayOf(cont1.id), intArrayOf()))
+        kahn.auftrag = terminal.avisierung(10, intArrayOf(cont1.id), intArrayOf())
         Uhr.incZeit(10)
 
         val ok = terminal.abfertigung(kahn)
@@ -43,15 +41,10 @@ class TerminalTestAufgabe3 {
 
         lkw.auftrag = (terminal.avisierung(10, intArrayOf(cont2.id), intArrayOf()))
         Uhr.incZeit(10)
-        var contractFailure = false
-        try {
-            terminal.abfertigung(lkw)
-        } catch (e: CapacityExceededException) {
-            contractFailure = true
-        }
+
+        terminal.abfertigung(lkw)
 
         /* Container 2 nicht abgeladen. */
-        Assert.assertTrue(contractFailure)
         Assert.assertEquals(1, terminal.genutzteKapazitaet)
         Assert.assertEquals(0, terminal.freieKapazitaet)
         Assert.assertEquals(1, terminal.anzahlBewegungen)
@@ -70,7 +63,7 @@ class TerminalTestAufgabe3 {
     }
 
 
-    @Test(timeout = TIMEOUT)
+    @Test(expected = ContractFailureException::class)
     @Throws(ContractFailureException::class)
     fun testContractFailure() {
 
@@ -82,18 +75,12 @@ class TerminalTestAufgabe3 {
         val kahn = Kahn()
         kahn.belade(cont1)
 
-        kahn.auftrag = (terminal.avisierung(10, intArrayOf(cont2.id), intArrayOf()))
+        kahn.auftrag = terminal.avisierung(10, intArrayOf(cont2.id), intArrayOf())
         Uhr.incZeit(10)
 
-        var contractFailure = false
-        try {
-            terminal.abfertigung(kahn)
-        } catch (e: ContractFailureException) {
-            contractFailure = true
-        }
+        terminal.abfertigung(kahn)
 
         /* Container 1 nicht abgeladen. */
-        Assert.assertTrue(contractFailure)
         Assert.assertEquals(0, terminal.genutzteKapazitaet)
         Assert.assertEquals(1, terminal.freieKapazitaet)
         Assert.assertEquals(0, terminal.anzahlBewegungen)
@@ -108,8 +95,7 @@ class TerminalTestAufgabe3 {
 
     }
 
-    @Test(timeout = TIMEOUT)
-    @Throws(ContractFailureException::class)
+    @Test(expected = ContractFailureException::class)
     fun testContractFailure2() {
 
         val terminal = Terminal(1, 1)
@@ -119,15 +105,10 @@ class TerminalTestAufgabe3 {
 
         val kahn = Kahn()
 
-        kahn.auftrag = terminal.avisierung(10, intArrayOf(), intArrayOf(cont2.id))
+        kahn.auftrag = terminal.avisierung(10, containerOutbound = intArrayOf(cont2.id))
         Uhr.incZeit(10)
 
-        var contractFailure = false
-        try {
-            terminal.abfertigung(kahn)
-        } catch (e: ContractFailureException) {
-            contractFailure = true
-        }
+        terminal.abfertigung(kahn)
 
         /* Container 1 nicht abgeladen. */
         Assert.assertEquals(0, terminal.genutzteKapazitaet)
@@ -135,12 +116,10 @@ class TerminalTestAufgabe3 {
         Assert.assertEquals(0, terminal.anzahlBewegungen)
         Assert.assertFalse(terminal.enthaelt(cont2.id))
         Assert.assertEquals(3, kahn.freieKapazitaet)
-        Assert.assertTrue(contractFailure)
         val lkw = LKW()
         lkw.belade(cont2)
 
-        lkw.auftrag = (terminal.avisierung(10, intArrayOf(cont2.id),
-                intArrayOf()))
+        lkw.auftrag = terminal.avisierung(10, intArrayOf(cont2.id))
 
         /* Geb�hren */
         Uhr.incZeit(10)
@@ -151,8 +130,7 @@ class TerminalTestAufgabe3 {
 
     }
 
-    @Test(timeout = TIMEOUT)
-    @Throws(ContractFailureException::class)
+    @Test
     fun testIterate() {
         val terminal = Terminal(4, 2)
         val kahn = Kahn()
@@ -163,7 +141,7 @@ class TerminalTestAufgabe3 {
         kahn.belade(cont2)
         kahn.belade(cont1)
 
-        kahn.auftrag = (terminal.avisierung(10, intArrayOf(cont1.id, cont2.id, cont3.id), intArrayOf()))
+        kahn.auftrag = terminal.avisierung(10, intArrayOf(cont1.id, cont2.id, cont3.id), intArrayOf())
         Uhr.incZeit(10)
         val ok = terminal.abfertigung(kahn)
         Assert.assertTrue(ok)
@@ -192,7 +170,7 @@ class TerminalTestAufgabe3 {
     /*
 	 * TransporterController d�rfen nur Auftragskopien mit sich f�hren.
 	 */
-    @Test(timeout = TIMEOUT)
+    @Test
     fun testNotOriginal() {
         val t = Terminal(4, 2)
         val cont1 = Container(false, "Luftmatrazen")
@@ -204,21 +182,20 @@ class TerminalTestAufgabe3 {
         kahn.belade(cont2)
         kahn.belade(cont1)
 
-        kahn.auftrag = (t.avisierung(10, intArrayOf(cont1.id, cont2.id, cont3.id), intArrayOf()))
+        kahn.auftrag = t.avisierung(10, intArrayOf(cont1.id, cont2.id, cont3.id), intArrayOf())
         Assert.assertFalse(kahn.auftrag!!.isOriginal)
 
 
         val lkw = LKW()
         lkw.belade(cont2)
 
-        lkw.auftrag = (t.avisierung(10, intArrayOf(cont2.id), intArrayOf()))
+        lkw.auftrag = t.avisierung(10, intArrayOf(cont2.id), intArrayOf())
         Assert.assertFalse(lkw.auftrag!!.isOriginal)
 
     }
 
     /** Hilfsfunktion zum Anliefern dreier Container mit einem Kahn  */
-    @Throws(ContractFailureException::class)
-    fun anliefernKahn(zeit: Int, t: Terminal): Kahn {
+    fun Terminal.anliefernKahn(zeit: Int): Kahn {
 
         val kahn = Kahn()
         val cont1 = Container(false, "Luftmatrazen")
@@ -228,40 +205,31 @@ class TerminalTestAufgabe3 {
         kahn.belade(cont2)
         kahn.belade(cont1)
 
-        kahn.auftrag = (t.avisierung(zeit,
-                intArrayOf(cont1.id, cont2.id, cont3.id), intArrayOf()))
+        kahn.auftrag = this.avisierung(zeit,
+                intArrayOf(cont1.id, cont2.id, cont3.id), intArrayOf())
         Uhr.incZeit(10)
 
-        t.abfertigung(kahn)
+        this.abfertigung(kahn)
 
         return kahn
     }
 
     /* gleichnamiger Test aus Aufgabe 2, dieses Mal mit anderem Verhalten: Exception */
-    @Test(timeout = TIMEOUT)
-    @Throws(ContractFailureException::class)
+    @Test(expected = CapacityExceededException::class)
     fun testeKapazitaet2x2() {
         val t1 = Terminal(2, 2)
-        val k1 = anliefernKahn(10, t1)
+        val k1 = t1.anliefernKahn(10)
         Assert.assertEquals(3, t1.genutzteKapazitaet)
         Assert.assertEquals(1, t1.freieKapazitaet)
         Assert.assertEquals(3, t1.anzahlBewegungen)
         Assert.assertEquals(3, k1.freieKapazitaet)
-        /* scheitert, weil nicht genug Kapazit�t vorhanden ist */
-        try {
-            val k2 = anliefernKahn(20, t1)
-            Assert.assertEquals(0, k2.freieKapazitaet)
-            Assert.fail() // hier d�rfen wir nicht mehr vorbeikommen
-        } catch (e: CapacityExceededException) {
-            // richtige Exception
-        }
+
+        val k2 = t1.anliefernKahn(20) // scheitert, weil nicht genug Kapazit�t vorhanden ist
+        Assert.assertEquals(0, k2.freieKapazitaet)
+
 
         Assert.assertEquals(3, t1.genutzteKapazitaet)
         Assert.assertEquals(1, t1.freieKapazitaet)
         Assert.assertEquals(3, t1.anzahlBewegungen)
-    }
-
-    companion object {
-        internal const val TIMEOUT = 1000L
     }
 }

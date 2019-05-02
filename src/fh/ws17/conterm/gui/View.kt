@@ -12,14 +12,7 @@ import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 
 
-class View<T : StockControllerAbstractClass>
-/**
- * the first parameter is unnessesarry and never used
- *
- * @param ignored   superclass of terminal or vehicle, never used
- * @param stockView the controller of the used terminal or vehicle
- */
-constructor(ignored: T, stockView: StockController<T>) {
+class View<T : StockControllerAbstractClass>(stockView: StockController<T>) {
 
     private val scene: Scene
     private val title: String
@@ -60,12 +53,5 @@ constructor(ignored: T, stockView: StockController<T>) {
         stage.show()
     }
 
-    override fun toString(): String {
-        return "View{" +
-                "scene=" + scene +
-                ", title='" + title + '\''.toString() +
-                ", main=" + main +
-                ", theGrid=" + theGrid +
-                '}'.toString()
-    }
+    override fun toString() = "View{scene=$scene, title='$title', main=$main, theGrid=$theGrid}"
 }

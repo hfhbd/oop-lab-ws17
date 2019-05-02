@@ -7,7 +7,6 @@ import org.junit.Test
 class TerminalTestAufgabe2b {
 
     @Before
-    @Throws(Exception::class)
     fun setUp() {
         /* vor jedem Test die Uhr zur�cksetzen */
         Uhr.reset()
@@ -119,87 +118,78 @@ class TerminalTestAufgabe2b {
     @Test
     fun testContainerDoppeltEinliefern() {
 
-        try {
 
-            val terminal = Terminal(4, 4)
+        val terminal = Terminal(4, 4)
 
-            val t2 = Terminal(4, 4)
+        val t2 = Terminal(4, 4)
 
-            val cont1 = Container(false, "Luftmatrazen")
-            val cont2 = Container(true, "M�bel")
-            val cont3 = Container(true, "Motorboot")
+        val cont1 = Container(false, "Luftmatrazen")
+        val cont2 = Container(true, "M�bel")
+        val cont3 = Container(true, "Motorboot")
 
-            val kahn = Kahn()
-            kahn.belade(cont3)
-            kahn.belade(cont2)
-            kahn.belade(cont1)
+        val kahn = Kahn()
+        kahn.belade(cont3)
+        kahn.belade(cont2)
+        kahn.belade(cont1)
 
-            /*
-		 * Kahn l�dt Container 3 im TerminalController ab
-		 */
-            kahn.auftrag = (terminal.avisierung(10, intArrayOf(cont3.id), intArrayOf()))
-            Uhr.incZeit(10)
-            terminal.abfertigung(kahn)
+        /*
+     * Kahn l�dt Container 3 im TerminalController ab
+     */
+        kahn.auftrag = (terminal.avisierung(10, intArrayOf(cont3.id), intArrayOf()))
+        Uhr.incZeit(10)
+        terminal.abfertigung(kahn)
 
-            /* Um Container 3 abzuladen, m�ssen beide anderen Container kurzfristig eingelagert werden. */
-            Assert.assertEquals(1, terminal.genutzteKapazitaet)
-            Assert.assertEquals(15, terminal.freieKapazitaet)
-            Assert.assertEquals(5, terminal.anzahlBewegungen)
-            Assert.assertFalse(terminal.enthaelt(cont1.id))
-            Assert.assertFalse(terminal.enthaelt(cont2.id))
-            Assert.assertTrue(terminal.enthaelt(cont3.id))
+        /* Um Container 3 abzuladen, m�ssen beide anderen Container kurzfristig eingelagert werden. */
+        Assert.assertEquals(1, terminal.genutzteKapazitaet)
+        Assert.assertEquals(15, terminal.freieKapazitaet)
+        Assert.assertEquals(5, terminal.anzahlBewegungen)
+        Assert.assertFalse(terminal.enthaelt(cont1.id))
+        Assert.assertFalse(terminal.enthaelt(cont2.id))
+        Assert.assertTrue(terminal.enthaelt(cont3.id))
 
-            /* Am Ende aber nur ein Container im TerminalController, 2 auf dem Kahn */
-            Assert.assertEquals(2, kahn.genutzteKapazitaet)
-            Assert.assertEquals(1, kahn.freieKapazitaet)
-            Assert.assertTrue(kahn.enthaelt(cont1.id))
-            Assert.assertTrue(kahn.enthaelt(cont2.id))
-            Assert.assertFalse(kahn.enthaelt(cont3.id))
+        /* Am Ende aber nur ein Container im TerminalController, 2 auf dem Kahn */
+        Assert.assertEquals(2, kahn.genutzteKapazitaet)
+        Assert.assertEquals(1, kahn.freieKapazitaet)
+        Assert.assertTrue(kahn.enthaelt(cont1.id))
+        Assert.assertTrue(kahn.enthaelt(cont2.id))
+        Assert.assertFalse(kahn.enthaelt(cont3.id))
 
-            /* Geb�hren */
-            val fix = 20.0
-            val rate = 1.5
-            Uhr.incZeit(10)
-            Assert.assertEquals(fix + 1 * rate, terminal.getGebuehren(cont1.id), 0.001)
-            Assert.assertEquals(fix + 1 * rate, terminal.getGebuehren(cont2.id), 0.001)
-            Assert.assertEquals(fix + 11 * rate, terminal.getGebuehren(cont3.id), 0.001)
-            Assert.assertEquals(3 * fix + 13 * rate, terminal.gebuehren, 0.001)
-            /*
-		 * Lkw holt Container 3 ab
-		 */
-            val lkw = LKW()
-            lkw.auftrag = (terminal.avisierung(12, intArrayOf(), intArrayOf(cont3.id)))
-            Uhr.incZeit(2)
-            terminal.abfertigung(lkw)
+        /* Geb�hren */
+        val fix = 20.0
+        val rate = 1.5
+        Uhr.incZeit(10)
+        Assert.assertEquals(fix + 1 * rate, terminal.getGebuehren(cont1.id), 0.001)
+        Assert.assertEquals(fix + 1 * rate, terminal.getGebuehren(cont2.id), 0.001)
+        Assert.assertEquals(fix + 11 * rate, terminal.getGebuehren(cont3.id), 0.001)
+        Assert.assertEquals(3 * fix + 13 * rate, terminal.gebuehren, 0.001)
+        /*
+     * Lkw holt Container 3 ab
+     */
+        val lkw = LKW()
+        lkw.auftrag = terminal.avisierung(12, intArrayOf(), intArrayOf(cont3.id))
+        Uhr.incZeit(2)
+        terminal.abfertigung(lkw)
 
-            /*
-		 * Lkw l�dt Container 3 ab
-		 */
-            lkw.auftrag = (t2.avisierung(15, intArrayOf(cont3.id), intArrayOf()))
-            Uhr.incZeit(3)
-            t2.abfertigung(lkw)
+        /*
+     * Lkw l�dt Container 3 ab
+     */
+        lkw.auftrag = t2.avisierung(15, intArrayOf(cont3.id), intArrayOf())
+        Uhr.incZeit(3)
+        t2.abfertigung(lkw)
 
-            Uhr.incZeit(10)
+        Uhr.incZeit(10)
 
-            /* Geb�hren T1 */
+        /* Geb�hren T1 */
 
-            Assert.assertEquals(fix + 1 * rate, terminal.getGebuehren(cont1.id), 0.001)
-            Assert.assertEquals(fix + 1 * rate, terminal.getGebuehren(cont2.id), 0.001)
-            Assert.assertEquals(fix + 13 * rate, terminal.getGebuehren(cont3.id), 0.001)
-            Assert.assertEquals(3 * fix + 15 * rate, terminal.gebuehren, 0.001)
+        Assert.assertEquals(fix + 1 * rate, terminal.getGebuehren(cont1.id), 0.001)
+        Assert.assertEquals(fix + 1 * rate, terminal.getGebuehren(cont2.id), 0.001)
+        Assert.assertEquals(fix + 13 * rate, terminal.getGebuehren(cont3.id), 0.001)
+        Assert.assertEquals(3 * fix + 15 * rate, terminal.gebuehren, 0.001)
 
-            /* Geb�hren T2 */
+        /* Geb�hren T2 */
 
-            Assert.assertEquals(0.0, t2.getGebuehren(cont1.id), 0.001)
-            Assert.assertEquals(0.0, t2.getGebuehren(cont2.id), 0.001)
-            Assert.assertEquals(fix + 11 * rate, t2.getGebuehren(cont3.id), 0.001)
-            Assert.assertEquals(fix + 11 * rate, t2.gebuehren, 0.001)
-
-        } catch (e: Exception) {
-            Assert.fail()
-        }
-
+        Assert.assertEquals(0.0, t2.getGebuehren(cont1.id), 0.001)
+        Assert.assertEquals(0.0, t2.getGebuehren(cont2.id), 0.001)
+        Assert.assertEquals(fix + 11 * rate, t2.getGebuehren(cont3.id), 0.001)
     }
-
-
 }

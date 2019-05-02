@@ -2,23 +2,9 @@ package fh.ws17.conterm
 
 /**
  * Manages the moves from one vehicle into one terminal
+ * [containerID] is the ID of the container and [inbound] is true, if the container should be to go in the terminal
  */
-class Move(
-        /**
-         * id of the moving container
-         */
-        val containerID: Int,
-        /**
-         * in the terminal
-         */
-        val inbound: Boolean) : Comparable<Move> {
-
-    override fun toString(): String {
-        return "Move{" +
-                "inbound=" + inbound +
-                ", containerID=" + containerID +
-                '}'.toString()
-    }
+data class Move(val containerID: Int, val inbound: Boolean) : Comparable<Move> {
 
     override fun compareTo(other: Move): Int {
         return Integer.compare(this.containerID, other.containerID)

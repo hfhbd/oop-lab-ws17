@@ -14,5 +14,4 @@ class TerminalTestAufgabe0 {
         // richtige Kapazit�t pr�fen
         Assert.assertEquals(8, t.freieKapazitaet)
     }
-
 }

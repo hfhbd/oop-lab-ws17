@@ -6,7 +6,6 @@ abstract class Vehicle internal constructor(spaces: Int, height: Int) : StockCon
     var auftrag: Order? = null
 
     internal val ladingStack: Stack<Move>
-        @Throws(ContractFailureException::class)
         get() {
             val inbound = this.auftrag!!.containerInbound
             for (id in inbound) {
@@ -37,8 +36,7 @@ abstract class Vehicle internal constructor(spaces: Int, height: Int) : StockCon
      * @param moves  the moves should add to this stack
      * @throws ContractFailureException failed if one container is not found or the order is wrong
      */
-    @Throws(ContractFailureException::class)
-    protected abstract fun addMoves(ids: IntArray?, inbound: Boolean, moves: Stack<Move>)
+    protected abstract fun addMoves(ids: IntArray, inbound: Boolean, moves: Stack<Move>)
 
     /**
      * Tries to execute the order by the planned terminal
@@ -46,15 +44,9 @@ abstract class Vehicle internal constructor(spaces: Int, height: Int) : StockCon
      * @return true if success
      * @throws ContractFailureException if contract failed
      */
-    @Throws(ContractFailureException::class)
     fun abfertigung(): Boolean {
         return auftrag!!.terminal.abfertigung(this)
     }
 
-    override fun toString(): String {
-        return "Vehicle{" +
-                "order=" + this.auftrag +
-                ", stock=" + this.stock +
-                '}'.toString()
-    }
+    override fun toString() = "Vehicle{order=$auftrag, stacks=$stock}"
 }

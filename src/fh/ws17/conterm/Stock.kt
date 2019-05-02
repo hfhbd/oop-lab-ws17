@@ -3,32 +3,36 @@ package fh.ws17.conterm
 import java.beans.PropertyChangeListener
 
 internal class Stock(private val structure: Structure) : Iterable<Container> {
-    internal val stock: Stack<Stack<Container>>
+    internal val stacks = Stack<Stack<Container>>(this.structure.spaces).apply {
+        repeat(size) {
+            this.add(Stack(this@Stock.structure.height))
+        }
+    }
 
     /**
-     * Get the used capacity of the complete stock
+     * Get the used capacity of the complete stacks
      *
-     * @return the used capacity of the complete stock
+     * @return the used capacity of the complete stacks
      */
     val used: Int
         get() {
             var used = 0
-            for (stack in this.stock) {
-                used += stack.capacity
+            stacks.forEach {
+                used += it.capacity
             }
             return used
         }
 
     /**
-     * Get the free capacity of the complete stock
+     * Get the free capacity of the complete stacks
      *
-     * @return the free capacity of the complete stock
+     * @return the free capacity of the complete stacks
      */
     val free: Int
         get() = structure.height * structure.spaces - this.used
 
     /**
-     * Returns the best stack to have a balanced stock
+     * Returns the best stack to have a balanced stacks
      *
      * @return the best stack
      */
@@ -36,9 +40,9 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
         get() {
 
             val loadeableStacks = Stack<Stack<Container>>()
-            for (stack in this.stock) {
-                if (this.isLoadeable(stack)) {
-                    loadeableStacks.add(stack)
+            stacks.forEach {
+                if (this.isLoadeable(it)) {
+                    loadeableStacks.add(it)
                 }
             }
             if (loadeableStacks.capacity == 0) {
@@ -48,21 +52,14 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
             return loadeableStacks.sorted().first()
         }
 
-    init {
-        this.stock = Stack(this.structure.spaces)
-        for (i in this.stock) {
-            this.stock.add(Stack(this.structure.height))
-        }
-    }
-
     fun addPropertyChangeListener(listener: PropertyChangeListener) {
-        for (stack in stock) {
+        for (stack in stacks) {
             stack.addPropertyChangeListener(listener)
         }
     }
 
     fun removePropertyChangeListener(listener: PropertyChangeListener) {
-        for (stack in stock) {
+        for (stack in stacks) {
             stack.removePropertyChangeListener(listener)
         }
     }
@@ -73,19 +70,18 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
      * @param stack to check
      * @return true if the stack is loadeable
      */
-    private fun isLoadeable(stack: Stack<Container>): Boolean {
-        return stack.size != stack.capacity && (stack.last == null || stack.last!!.content.isStable)
-    }
+    private fun isLoadeable(stack: Stack<Container>) =
+            stack.size != stack.capacity && (stack.last == null || stack.last!!.content.isStable)
 
     /**
-     * Check whether the id of the requested container is in the stock
+     * Check whether the id of the requested container is in the stacks
      *
-     * @param containerID of the requested stock
+     * @param containerID of the requested stacks
      * @return true if the container id is found
      */
     operator fun contains(containerID: Int): Boolean {
         val toSearch = Container.toSearch(containerID)
-        for (stack in this.stock) {
+        for (stack in this.stacks) {
             if (stack.contains(toSearch)) {
                 return true
             }
@@ -94,7 +90,7 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
     }
 
     /**
-     * lade the requested container the the first space in the stock
+     * lade the requested container the the first space in the stacks
      *
      * @param container to lade
      * @return true if success
@@ -104,7 +100,7 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
             return false
         }
 
-        for (stack in this.stock) {
+        for (stack in this.stacks) {
             if (this.isLoadeable(stack)) {
                 return stack.add(container)
             }
@@ -127,7 +123,7 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
         }
 
         val toSearch = Container.toSearch(id)
-        for (stack in this.stock) {
+        for (stack in this.stacks) {
             if (stack.seeTop() != null && stack.seeTop() == toSearch) {
                 return stack.deleteTop()
             }
@@ -142,7 +138,7 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
      * @return the right stack
      */
     fun getRightStack(id: Int): Stack<Container>? {
-        for (stack in this.stock) {
+        for (stack in this.stacks) {
             if (stack.contains(Container.toSearch(id))) {
                 return stack
             }
@@ -160,7 +156,7 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
      */
     fun getOtherStack(id: Int): Stack<Container> {
         val rightStack = this.getRightStack(id)
-        for (stack in this.stock) {
+        for (stack in this.stacks) {
             if (stack != rightStack && this.isLoadeable(stack)) {
                 return stack
             }
@@ -168,45 +164,54 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
         throw ContractFailureException()
     }
 
+    override fun toString() = "$stacks"
+
     /**
      * Returns an iterator of container
      * First every container stack, than the next stack
      *
      * @return the iterator
      */
-    override fun iterator(): Iterator<Container> {
-        return object : Iterator<Container> {
+    override fun iterator() = object : Iterator<Container> {
 
-            var index: Int = 0
-            var containerIterator = this@Stock.stock.elementAt(this.index).iterator()
+        var index: Int = 0
+        var containerIterator = this@Stock.stacks.elementAt(this.index).iterator()
 
-            /**
-             * First every container stack, than the next stack
-             * @return true if a container is found
-             */
-            override fun hasNext(): Boolean {
-                if (this.containerIterator.hasNext()) {
-                    return true
-                } else if (this.index != this@Stock.stock.size) {
+        /**
+         * First every container stack, than the next stack
+         * @return true if a container is found
+         */
+        /**
+         * First every container stack, than the next stack
+         * @return true if a container is found
+         */
+        override fun hasNext(): Boolean {
+            return when {
+                this.containerIterator.hasNext() -> true
+                this.index != this@Stock.stacks.size -> {
                     this.index++
-                    if (this.index == this@Stock.stock.size) {
+                    if (this.index == this@Stock.stacks.size) {
                         return false
                     }
-                    this.containerIterator = this@Stock.stock.elementAt(index).iterator()
-                    return this.hasNext()
+                    this.containerIterator = this@Stock.stacks.elementAt(index).iterator()
+                    this.hasNext()
                 }
-                return false
-            }
-
-            /**
-             * Returns the next of the stack iterator
-             * @return the next iterator
-             */
-            override fun next(): Container {
-                return this.containerIterator.next()
+                else -> false
             }
         }
+
+        /**
+         * Returns the next of the stack iterator
+         * @return the next iterator
+         */
+        /**
+         * Returns the next of the stack iterator
+         * @return the next iterator
+         */
+        override fun next() = this.containerIterator.next()
     }
 
-    internal class Structure(val spaces: Int, val height: Int)
+    internal class Structure(val spaces: Int, val height: Int) {
+        override fun toString() = "$spaces and $height"
+    }
 }

@@ -9,49 +9,37 @@ class Kahn internal constructor() : Vehicle(1, 3) {
      * @param inbound in the terminal
      * @param moves the result stack of moves
      */
-    @Throws(ContractFailureException::class)
-    public override fun addMoves(ids: IntArray?, inbound: Boolean, moves: Stack<Move>) {
-        if (ids != null) {
-            val allEffectedStacks = Stack<Stack<Container>>()
+    public override fun addMoves(ids: IntArray, inbound: Boolean, moves: Stack<Move>) {
+        val allEffectedStacks = ids.map { stock.getRightStack(it) ?: throw ContractFailureException() }.toSet()
 
+        for (stack in allEffectedStacks) {
+            var deepest = 0
             for (id in ids) {
-                val one = stock.getRightStack(id)!!
-                if (!allEffectedStacks.contains(one)) {
-                    allEffectedStacks.add(one)
+                val distance = stack.getDistanceFromTopTo(Container.toSearch(id))
+                if (distance != null && distance > deepest) {
+                    deepest = distance
                 }
             }
 
-            for (stack in allEffectedStacks) {
-                var deepest = 0
+            var current = stack.last
+            for (i in 0 until deepest) {
+
+                var contains = false
                 for (id in ids) {
-                    val distance = stack.getDistanceFromTopTo(Container.toSearch(id))
-                    if (distance != null && distance > deepest) {
-                        deepest = distance
+                    if (current!!.content.id == id) {
+                        contains = true
                     }
                 }
-
-                var current = stack.last
-                for (i in 0 until deepest) {
-
-                    var contains = false
-                    for (id in ids) {
-                        if (current!!.content.id == id) {
-                            contains = true
-                        }
-                    }
-                    if (!contains) {
-                        moves.add(Move(current!!.content.id, !inbound))
-                    }
-                    current = current!!.previous
+                if (!contains) {
+                    moves.add(Move(current!!.content.id, !inbound))
                 }
-
-                while (current != null) {
-                    moves.add(Move(current.content.id, inbound))
-                    current = current.next
-                }
+                current = current!!.previous
             }
 
-
+            while (current != null) {
+                moves.add(Move(current.content.id, inbound))
+                current = current.next
+            }
         }
     }
 }
