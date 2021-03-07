@@ -1,11 +1,23 @@
 package fh.ws17.conterm
 
-internal class Stock(private val structure: Structure) : Iterable<Container> {
+import androidx.compose.runtime.*
+
+internal class Stock(private val structure: Structure) : Iterable<Container>, State<List<List<Container>>> {
     internal val stacks = Stack<Stack<Container>>(this.structure.spaces).apply {
         repeat(size) {
-            this.add(Stack(this@Stock.structure.height))
+            this.add(Stack(this@Stock.structure.height) {
+                update()
+            })
         }
     }
+
+    private fun update() {
+        value = stacks.map { it.map { it } }
+        println("update called")
+    }
+
+    override var value: List<List<Container>> = stacks.map { it.toList() }
+        private set
 
     /**
      * Get the used capacity of the complete stacks
