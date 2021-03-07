@@ -10,7 +10,8 @@ class LKW internal constructor() : Vehicle(1, 1, "LKW") {
      * @param moves  the moves should add to this stack
      */
     public override fun addMoves(ids: IntArray, inbound: Boolean, moves: Stack<Move>) {
-        check(ids.size == 1)
-        moves.add(Move(ids.first(), inbound))
+        if (ids.size == 1) {
+            moves.add(Move(ids.first(), inbound))
+        }
     }
 }

@@ -1,8 +1,10 @@
 package fh.ws17.conterm
 
-class Stack<T : Comparable<T>> internal constructor(val size: Int) : Iterable<T>, Comparable<Stack<T>> {
+class Stack<T : Comparable<T>> internal constructor(val size: Int, private val onChange: () -> Unit = {}) : Iterable<T>,
+    Comparable<Stack<T>> {
 
-    internal var last: Element<T>? = null
+    var last: Element<T>? = null
+        private set
 
     var capacity = 0
         private set
@@ -18,25 +20,27 @@ class Stack<T : Comparable<T>> internal constructor(val size: Int) : Iterable<T>
             override fun hasNext() = current != null
 
             override fun next(): T {
-                val toReturn = current!!.content
-                current = current!!.previous
+                val tmpCurrent = requireNotNull(current)
+                val toReturn = tmpCurrent.content
+                current = tmpCurrent.previous
                 return toReturn
             }
         }
     }
 
-    fun seeTop() = this.last?.content
+    fun seeTop(): T? = this.last?.content
 
     fun deleteTop(): T {
-        val last = this.last!!
+        val last = requireNotNull(this.last)
         val t = last.content
         this.last = last.previous
         capacity -= 1
+        onChange()
         return t
     }
 
     fun getDistanceFromTopTo(toSearch: T): Int? {
-        for ((index, t) in this.withIndex()) {
+        forEachIndexed { index, t ->
             if (t == toSearch) {
                 return index
             }
@@ -49,31 +53,55 @@ class Stack<T : Comparable<T>> internal constructor(val size: Int) : Iterable<T>
             val toAdd = Element(t, previous = null)
             last = toAdd
             capacity += 1
+            onChange()
             true
         }
         capacity != size -> {
-            val toAdd = Element(t, previous = last)
-            last!!.next = toAdd
-            last = last!!.next
+            val tmpLast = requireNotNull(last)
+            val toAdd = Element(t, previous = tmpLast)
+            tmpLast.next = toAdd
+            last = toAdd
             capacity += 1
+            onChange()
             true
         }
         else -> false
     }
 
-    operator fun contains(toSearch: T) = getDistanceFromTopTo(toSearch) != null
+    operator fun contains(toSearch: T): Boolean = getDistanceFromTopTo(toSearch) != null
 
-    override fun toString(): String {
-        val string = StringBuilder("Stack with $size used with $capacity:")
-        forEach {
-            string.append("{").append(it).append("}")
+    override fun toString() = buildString {
+        append("Stack with $size used with $capacity:")
+        this@Stack.forEach {
+            append("{")
+            append(it)
+            append("}")
         }
-        return string.toString()
     }
 
-    override fun compareTo(other: Stack<T>) = capacity.compareTo(other.capacity)
 
-    internal inner class Element<T>(val content: T, var previous: Element<T>?) {
+    override fun compareTo(other: Stack<T>): Int = capacity.compareTo(other.capacity)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Stack<*>
+
+        if (size != other.size) return false
+        if (last != other.last) return false
+        if (capacity != other.capacity) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = size
+        result = 31 * result + (last?.hashCode() ?: 0)
+        result = 31 * result + capacity
+        return result
+    }
+
+    data class Element<T>(val content: T, var previous: Element<T>?) {
         var next: Element<T>? = null
     }
 }

@@ -39,10 +39,9 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
      * @return ID: 1 = 21.5 etc.
      */
     val gebuehrenString: String
-        get() {
-            val sb = StringBuilder()
+        get() = buildString {
             val allUniqueIDs = Stack<Int>(size = -1)
-            for (order in this.charges) {
+            for (order in this@Terminal.charges) {
                 for (i in order.containerInbound) {
                     if (!allUniqueIDs.contains(i)) {
                         allUniqueIDs.add(i)
@@ -51,9 +50,12 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
             }
             val ids = allUniqueIDs.sorted()
             for (id in ids) {
-                sb.append("ID: ").append(id).append(" = ").append(this.getGebuehren(id)).append('\n')
+                append("ID: ")
+                append(id)
+                append(" = ")
+                append(this@Terminal.getGebuehren(id))
+                appendLine()
             }
-            return sb.toString().trim { it <= ' ' }
         }
 
     /**
@@ -116,13 +118,7 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
      * @param ids of all the container, which should move
      */
     private fun addTempOrder(id: Int, ids: IntArray) {
-        var contains = false
-        for (i in ids) {
-            if (i == id) {
-                contains = true
-            }
-        }
-        if (!contains) {
+        if (id !in ids) {
             this.charges.add(OrderImpl(Container.toSearch(id)))
         }
     }
@@ -144,40 +140,39 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
      * @throws ContractFailureException if contract failed
      */
     fun abfertigung(vehicle: Vehicle): Boolean {
-        vehicle.auftrag?.let {
-            //Testing if order is registered in TerminalController
-            if (!this.charges.contains(it)) {
-                return false
-            }
-            if (it.containerInbound.size > this.freieKapazitaet) {
-                throw CapacityExceededException()
-            }
-            val toLade = vehicle.ladingStack
-            for (move in toLade) {
-                if (move.inbound) {
+        val it = requireNotNull(vehicle.auftrag) { throw ContractFailureException() }
+        //Testing if order is registered in TerminalController
+        if (!this.charges.contains(it)) {
+            return false
+        }
+        require(it.containerInbound.size <= this.freieKapazitaet) {
+            throw CapacityExceededException()
+        }
+        val toLade = vehicle.ladingStack
+        for (move in toLade) {
+            if (move.inbound) {
 
-                    val c = vehicle.entlade(move.containerID)
-                    this.addTempOrder(c.id, it.containerInbound)
+                val c = vehicle.entlade(move.containerID)
+                this.addTempOrder(c.id, it.containerInbound)
 
-                    if (this.belade(c)) {
-                        this.getOrder(it)!!.incomingTime = Uhr.zeit
-                        it.incomingTime = Uhr.zeit
-                    } else {
-                        return false
-                    }
-
+                if (this.belade(c)) {
+                    this.getOrder(it)!!.incomingTime = Uhr.zeit
+                    it.incomingTime = Uhr.zeit
                 } else {
-                    if (vehicle.belade(this.entlade(move.containerID))) {
-                        this.getOrder(it)!!.outcomingTime = Uhr.zeit
-                        it.outcomingTime = Uhr.zeit
-                    } else {
-                        return false
-                    }
+                    return false
                 }
-                this.anzahlBewegungen += 1
+
+            } else {
+                if (vehicle.belade(this.entlade(move.containerID))) {
+                    this.getOrder(it)!!.outcomingTime = Uhr.zeit
+                    it.outcomingTime = Uhr.zeit
+                } else {
+                    return false
+                }
             }
-            return true
-        } ?: throw ContractFailureException()
+            this.anzahlBewegungen += 1
+        }
+        return true
     }
 
 
@@ -218,7 +213,7 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
         return sum
     }
 
-    override fun toString() = "Terminal{ charges= $charges, moves= $anzahlBewegungen, stacks= $stock}"
+    override fun toString() = "Terminal{charges= $charges, moves= $anzahlBewegungen, stacks= $stock}"
 
     interface Order {
         val isOriginal: Boolean
@@ -245,9 +240,7 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
 
         constructor(container: Container) : this(Uhr.zeit, intArrayOf(container.id), intArrayOf(container.id))
 
-        override fun hashCode(): Int {
-            return scheduledTime + containerInbound.hashCode() + containerOutbound.hashCode()
-        }
+        override fun hashCode(): Int = scheduledTime + containerInbound.hashCode() + containerOutbound.hashCode()
 
         override fun clone(): Order {
             return OrderImpl(scheduledTime, containerInbound, containerOutbound, incomingTime, outcomingTime).apply {
@@ -255,8 +248,12 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
             }
         }
 
+
         override fun equals(other: Any?): Boolean {
             return other is Order && other.hashCode() == this.hashCode()
         }
+
+        override fun toString(): String =
+            "OrderImpl(scheduledTime=$scheduledTime, containerInbound=${containerInbound.contentToString()}, containerOutbound=${containerOutbound.contentToString()}, incomingTime=$incomingTime, outcomingTime=$outcomingTime, isOriginal=$isOriginal)"
     }
 }

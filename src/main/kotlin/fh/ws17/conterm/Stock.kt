@@ -57,7 +57,7 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
      * @return true if the stack is loadeable
      */
     private fun isLoadable(stack: Stack<Container>) =
-            stack.size != stack.capacity && (stack.last == null || stack.last!!.content.isStable)
+        stack.size != stack.capacity && (stack.last == null || stack.last!!.content.isStable)
 
     /**
      * Check whether the id of the requested container is in the stacks
@@ -197,7 +197,20 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
         override fun next() = this.containerIterator.next()
     }
 
-    internal class Structure(val spaces: Int, val height: Int) {
-        override fun toString() = "$spaces and $height"
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Stock
+
+        if (stacks != other.stacks) return false
+
+        return true
     }
+
+    override fun hashCode(): Int {
+        return stacks.hashCode()
+    }
+
+    data class Structure(val spaces: Int, val height: Int)
 }

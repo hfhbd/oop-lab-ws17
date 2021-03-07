@@ -13,12 +13,7 @@ class Container private constructor(val isStable: Boolean, val beschreibung: Str
 
     override fun compareTo(other: Container) = id.compareTo(other.id)
 
-    override fun hashCode(): Int {
-        var result = this.beschreibung.hashCode()
-        result = 31 * result + if (this.isStable) 1 else 0
-        result = 31 * result + this.id
-        return result
-    }
+    override fun hashCode(): Int = id
 
     companion object {
         private var idCounter: Int = 0
