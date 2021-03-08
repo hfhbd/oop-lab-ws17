@@ -87,19 +87,12 @@ class Stack<T : Comparable<T>> internal constructor(val size: Int, private val o
 
         other as Stack<*>
 
-        if (size != other.size) return false
         if (last != other.last) return false
-        if (capacity != other.capacity) return false
 
         return true
     }
 
-    override fun hashCode(): Int {
-        var result = size
-        result = 31 * result + (last?.hashCode() ?: 0)
-        result = 31 * result + capacity
-        return result
-    }
+    override fun hashCode(): Int = last?.hashCode() ?: 0
 
     data class Element<T>(val content: T, var previous: Element<T>?) {
         var next: Element<T>? = null

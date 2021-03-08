@@ -2,22 +2,26 @@ package fh.ws17.conterm
 
 import androidx.compose.runtime.*
 
-internal class Stock(private val structure: Structure) : Iterable<Container>, State<List<List<Container>>> {
+internal class Stock(private val structure: Structure) : Iterable<Container> {
     internal val stacks = Stack<Stack<Container>>(this.structure.spaces).apply {
         repeat(size) {
             this.add(Stack(this@Stock.structure.height) {
-                update()
+                subscribers.forEach {
+                    it(this)
+                }
             })
         }
     }
 
-    private fun update() {
-        value = stacks.map { it.map { it } }
-        println("update called")
+    private var subscribers: MutableList<(Stack<Stack<Container>>) -> Unit> = mutableListOf()
+    fun subscribe(onUpdate: (Stack<Stack<Container>>) -> Unit): Int {
+        subscribers.add(onUpdate)
+        return subscribers.size
     }
 
-    override var value: List<List<Container>> = stacks.map { it.toList() }
-        private set
+    fun dispose(id: Int) {
+        subscribers.removeAt(id)
+    }
 
     /**
      * Get the used capacity of the complete stacks
