@@ -1,7 +1,7 @@
 package fh.ws17.conterm
 
 /**
- * Controlls the stack
+ * Controls the stack
  * Used by the terminal and the vehicle
  */
 abstract class StockControllerAbstractClass internal constructor(
