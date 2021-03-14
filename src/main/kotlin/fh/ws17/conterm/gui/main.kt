@@ -2,32 +2,6 @@ package fh.ws17.conterm.gui
 
 import fh.ws17.conterm.*
 
-internal abstract class ViewModel(val title: String, val stock: Stock) {
-
-    abstract fun onContainerClicked(container: Container): String
-    abstract fun onBiggerClicked(): String
-    abstract fun onExclamationMarkClicked(): String
-    abstract fun onQuestionMarkClicked(): String
-}
-
-/*
-fun main() = Window {
-    val viewModel = ViewModel()
-    Column {
-        a(viewModel)
-        Button(onClick = {
-            viewModel.model = Model("World")
-        }) {
-            Text("Change me")
-        }
-    }
-}
-
-@Composable
-fun a(vm: ViewModel) {
-    Text(text = vm.model.value)
-}
-*/
 fun main() {
     val terminal = Terminal(4, 4)
 

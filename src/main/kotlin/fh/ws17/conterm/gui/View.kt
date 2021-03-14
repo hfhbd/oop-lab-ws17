@@ -5,6 +5,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.res.*
 import androidx.compose.ui.unit.*
@@ -12,8 +13,8 @@ import fh.ws17.conterm.*
 import fh.ws17.conterm.Stack as ContermStack
 
 @Composable
-private fun ContainerButton(container: Container, onClick: (Container) -> Unit) =
-    Button(onClick = { onClick(container) }) {
+private fun ContainerButton(container: Container, onClick: (Container) -> Unit, modifier: Modifier) =
+    Button(onClick = { onClick(container) }, modifier = modifier) {
         val colorFilter = if (container.isStable) {
             ColorFilter.tint(Color.Blue, BlendMode.Hue)
         } else null
@@ -22,31 +23,22 @@ private fun ContainerButton(container: Container, onClick: (Container) -> Unit) 
 
 @Composable
 private fun stockView(stock: ContermStack<ContermStack<Container>>, onContainerClicked: (Container) -> Unit) {
+    val containerSize = Modifier.size(64.dp)
     stock.forEach {
         Column {
+            val freeSpace = it.size - it.capacity
+            repeat(freeSpace) {
+                Spacer(containerSize)
+            }
             it.forEach { container ->
-                ContainerButton(container, onContainerClicked)
+                ContainerButton(container, onContainerClicked, containerSize)
             }
         }
     }
 }
 
-@Composable
-internal fun Stock.toState(): State<ContermStack<ContermStack<Container>>> {
-    val state = remember { mutableStateOf(stacks, neverEqualPolicy()) }
-    DisposableEffect(this) {
-        val id = subscribe {
-            state.value = it
-        }
-        onDispose {
-            dispose(id)
-        }
-    }
-    return state
-}
-
 internal fun View(viewModel: ViewModel) = Window(title = viewModel.title, size = IntSize(400, 400)) {
-    val stock by viewModel.stock.toState()
+    val stock by viewModel.toState()
     var showAlert by remember { mutableStateOf(false) }
     var text by remember { mutableStateOf("") }
     Column {
