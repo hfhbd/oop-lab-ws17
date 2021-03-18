@@ -39,46 +39,41 @@ private fun stockView(stock: ContermStack<ContermStack<Container>>, onContainerC
 
 internal fun View(viewModel: ViewModel) = Window(title = viewModel.title, size = IntSize(400, 400)) {
     val stock by viewModel.toState()
-    var showAlert by remember { mutableStateOf(false) }
-    var text by remember { mutableStateOf("") }
+    var text: String? by remember { mutableStateOf(null) }
     Column {
         Row {
             stockView(stock) {
                 text = viewModel.onContainerClicked(it)
-                showAlert = true
             }
         }
         Row {
             Button(onClick = {
                 text = viewModel.onBiggerClicked()
-                showAlert = true
             }) {
                 Text(">")
             }
             Button(onClick = {
                 text = viewModel.onExclamationMarkClicked()
-                showAlert = true
             }) {
                 Text("!")
             }
             Button(onClick = {
                 text = viewModel.onQuestionMarkClicked()
-                showAlert = true
             }) {
                 Text("?")
             }
         }
     }
-    if (showAlert) {
+    text?.let { it ->
         AlertDialog(
-            onDismissRequest = { showAlert = false },
+            onDismissRequest = { text = null },
             title = { Text("Information") },
-            text = { Text(text) },
+            text = { Text(it) },
             confirmButton = {
                 Button(onClick = {
-                    showAlert = false
+                    text = null
                 }) {
-                    Text("A button")
+                    Text("OK")
                 }
             }
         )
