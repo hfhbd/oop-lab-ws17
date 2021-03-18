@@ -5,7 +5,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    jcenter() // https://github.com/Kotlin/kotlinx.collections.immutable/issues/96
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
