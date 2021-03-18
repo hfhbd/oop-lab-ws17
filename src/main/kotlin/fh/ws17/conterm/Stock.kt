@@ -6,21 +6,23 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
     internal val stacks = Stack<Stack<Container>>(this.structure.spaces).apply {
         repeat(size) {
             this.add(Stack(this@Stock.structure.height) {
-                subscribers.forEach {
+                subscribers.values.forEach {
                     it(this)
                 }
             })
         }
     }
 
-    private var subscribers: MutableList<(Stack<Stack<Container>>) -> Unit> = mutableListOf()
+    private var subscribers: MutableMap<Int, (Stack<Stack<Container>>) -> Unit> = mutableMapOf()
+    private var counter = 0
     fun subscribe(onUpdate: (Stack<Stack<Container>>) -> Unit): Int {
-        subscribers.add(onUpdate)
-        return subscribers.size
+        subscribers[counter] = onUpdate
+        counter += 1
+        return counter
     }
 
     fun dispose(id: Int) {
-        subscribers.removeAt(id)
+        subscribers.remove(id)
     }
 
     /**
