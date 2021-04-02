@@ -5,12 +5,12 @@ plugins {
 
 repositories {
     mavenCentral()
-    jcenter() // https://github.com/Kotlin/kotlinx.collections.immutable/issues/96
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
 dependencies {
     implementation(compose.desktop.currentOs)
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.4")
     testImplementation(kotlin("test-junit"))
 }
 
