@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.5.10"
-    id("org.jetbrains.compose") version "0.5.0-build225"
+    id("org.jetbrains.compose") version "0.5.0-build226"
 }
 
 repositories {
