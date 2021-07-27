@@ -1,8 +1,9 @@
 package fh.ws17.conterm.gui
 
+import androidx.compose.ui.window.*
 import fh.ws17.conterm.*
 
-fun main() {
+fun main() = application {
     val terminal = Terminal(4, 4)
 
     val cont1 = Container(true, "Luftmatrazen")
