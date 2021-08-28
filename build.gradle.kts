@@ -1,10 +1,11 @@
 plugins {
-    kotlin("jvm") version "1.5.21"
-    id("org.jetbrains.compose") version "0.5.0-build270"
+    kotlin("jvm") version "1.5.30"
+    id("org.jetbrains.compose") version "1.0.0-alpha4-build328"
 }
 
 repositories {
     mavenCentral()
+    google()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
