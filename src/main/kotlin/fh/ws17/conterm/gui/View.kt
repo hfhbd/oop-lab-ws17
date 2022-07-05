@@ -57,7 +57,7 @@ internal fun View(viewModel: ViewModel) {
                 } else true
             },
             onCloseRequest = { show = false }, title = viewModel.title, resizable = true,
-            state = WindowState(size = WindowSize(400.dp, 300.dp))
+            state = WindowState(size = DpSize(400.dp, 300.dp))
         ) {
             val stock by viewModel.toState()
             var text: String? by remember { mutableStateOf(null) }
@@ -85,7 +85,7 @@ internal fun View(viewModel: ViewModel) {
                     }
                 }
             }
-            text?.let { it ->
+            text?.let {
                 Dialog(onCloseRequest = {
                     text = null
                 }, title = "Information") {
