@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "1.8.0"
     id("org.jetbrains.compose") version "1.3.0"
+    id("app.cash.licensee") version "1.6.0"
 }
 
 repositories {
@@ -20,4 +21,8 @@ compose.desktop {
     application {
         mainClass = "fh.ws17.conterm.gui.MainKt"
     }
+}
+
+licensee {
+    allow("Apache-2.0")
 }
