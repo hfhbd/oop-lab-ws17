@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "1.7.20"
-    id("org.jetbrains.compose") version "1.2.2"
+    kotlin("jvm") version "1.8.0"
+    id("org.jetbrains.compose") version "1.3.0"
 }
 
 repositories {
@@ -13,6 +13,8 @@ dependencies {
     implementation(compose.desktop.currentOs)
     testImplementation(kotlin("test-junit"))
 }
+
+kotlin.jvmToolchain(11)
 
 compose.desktop {
     application {
