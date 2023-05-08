@@ -1,13 +1,7 @@
 plugins {
-    kotlin("jvm") version "1.8.20"
-    id("org.jetbrains.compose") version "1.4.0"
-    id("app.cash.licensee") version "1.6.0"
-}
-
-repositories {
-    mavenCentral()
-    google()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.compose)
+    alias(libs.plugins.licensee)
 }
 
 dependencies {
@@ -15,7 +9,9 @@ dependencies {
     testImplementation(kotlin("test-junit"))
 }
 
-kotlin.jvmToolchain(11)
+kotlin {
+    jvmToolchain(11)
+}
 
 compose.desktop {
     application {
