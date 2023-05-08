@@ -70,7 +70,7 @@ class OtherTests {
     }
 
     @Test
-    fun testIDsNotInTerminal() = runTest{
+    fun testIDsNotInTerminal() = runTest {
         val terminal = Terminal(max, max, testTimeSource)
         val vehicle = LKW(testTimeSource)
         val container = Container(false, "")

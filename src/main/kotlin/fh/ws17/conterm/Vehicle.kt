@@ -3,7 +3,12 @@ package fh.ws17.conterm
 import fh.ws17.conterm.Terminal.Order
 import kotlin.time.TimeSource
 
-abstract class Vehicle internal constructor(spaces: Int, height: Int, title: String, timeSource: TimeSource.WithComparableMarks) :
+abstract class Vehicle internal constructor(
+    spaces: Int,
+    height: Int,
+    title: String,
+    timeSource: TimeSource.WithComparableMarks
+) :
     StockControllerAbstractClass(Stock.Structure(spaces, height), title, timeSource) {
     var auftrag: Order? = null
 

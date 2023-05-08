@@ -45,7 +45,7 @@ class TerminalTestAufgabe1 {
     }
 
     @Test
-    fun testNeuerLKW() = runTest{
+    fun testNeuerLKW() = runTest {
         // Anlegen zweier Container
         val cont1 = Container(false, "Luftmatrazen")
         val cont2 = Container(true, "Strandbar")
@@ -127,7 +127,7 @@ class TerminalTestAufgabe1 {
     }
 
     @Test
-    fun testEinliefern() = runTest{
+    fun testEinliefern() = runTest {
         val terminal = Terminal(4, 4, testTimeSource)
 
         val cont1 = Container(false, "Luftmatrazen")
@@ -189,7 +189,7 @@ class TerminalTestAufgabe1 {
     }
 
     @Test
-    fun testEinAusliefern() = runTest{
+    fun testEinAusliefern() = runTest {
 
         //geändert zu 5,1 vorher 1,5
         val terminal = Terminal(2, 5, testTimeSource)

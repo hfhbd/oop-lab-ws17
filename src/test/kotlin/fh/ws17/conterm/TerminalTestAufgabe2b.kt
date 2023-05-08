@@ -3,12 +3,15 @@ package fh.ws17.conterm
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.testTimeSource
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 
 class TerminalTestAufgabe2b {
     @Test
-    fun testKapazitaet() = runTest{
+    fun testKapazitaet() = runTest {
 
         /* Anlegen von Containern */
         val cont1 = Container(true, "Luftmatrazen")
@@ -111,7 +114,7 @@ class TerminalTestAufgabe2b {
 
 
     @Test
-    fun testContainerDoppeltEinliefern() = runTest{
+    fun testContainerDoppeltEinliefern() = runTest {
         val terminal = Terminal(4, 4, testTimeSource)
 
         val t2 = Terminal(4, 4, testTimeSource)

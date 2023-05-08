@@ -1,17 +1,27 @@
 package fh.ws17.conterm.gui
 
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.*
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.painter.*
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.res.*
-import androidx.compose.ui.unit.*
-import androidx.compose.ui.window.*
-import fh.ws17.conterm.*
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowState
+import fh.ws17.conterm.Container
 import fh.ws17.conterm.Stack as ContermStack
 
 @Composable
@@ -31,13 +41,13 @@ private fun ContainerButton(
 @Composable
 private fun stockView(stock: ContermStack<ContermStack<Container>>, onContainerClicked: (Container) -> Unit) {
     val containerSize = Modifier.size(64.dp)
-    stock.forEach {
+    for (it in stock) {
         Column {
             val freeSpace = it.size - it.capacity
             repeat(freeSpace) {
                 Spacer(containerSize)
             }
-            it.forEach { container ->
+            for (container in it) {
                 ContainerButton(container, onContainerClicked, containerSize)
             }
         }

@@ -2,14 +2,14 @@ package fh.ws17.conterm
 
 import kotlin.time.ComparableTimeMark
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 
-class Terminal(spaces: Int, height: Int, timeSource: TimeSource.WithComparableMarks) : StockControllerAbstractClass(Stock.Structure(spaces, height), "Terminal", timeSource) {
+class Terminal(spaces: Int, height: Int, timeSource: TimeSource.WithComparableMarks) :
+    StockControllerAbstractClass(Stock.Structure(spaces, height), "Terminal", timeSource) {
     private val initTime = timeSource.markNow()
-    
+
     /**
      * Set of the original orders
      */
@@ -249,9 +249,14 @@ class Terminal(spaces: Int, height: Int, timeSource: TimeSource.WithComparableMa
 
         override var isOriginal = true
 
-        constructor(container: Container, timeSource: TimeSource.WithComparableMarks) : this(timeSource.markNow(), intArrayOf(container.id), intArrayOf(container.id))
+        constructor(container: Container, timeSource: TimeSource.WithComparableMarks) : this(
+            timeSource.markNow(),
+            intArrayOf(container.id),
+            intArrayOf(container.id)
+        )
 
-        override fun hashCode(): Int = scheduledTime.hashCode() + containerInbound.hashCode() + containerOutbound.hashCode()
+        override fun hashCode(): Int =
+            scheduledTime.hashCode() + containerInbound.hashCode() + containerOutbound.hashCode()
 
         override fun clone(): Order {
             return OrderImpl(scheduledTime, containerInbound, containerOutbound, incomingTime, outcomingTime).apply {
