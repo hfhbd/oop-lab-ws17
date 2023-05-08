@@ -38,7 +38,7 @@ class Stack<T : Comparable<T>> internal constructor(val size: Int, private val o
     }
 
     fun getDistanceFromTopTo(toSearch: T): Int? {
-        for((index, t) in withIndex()) {
+        for ((index, t) in withIndex()) {
             if (t == toSearch) {
                 return index
             }
@@ -54,6 +54,7 @@ class Stack<T : Comparable<T>> internal constructor(val size: Int, private val o
             onChange()
             true
         }
+
         capacity != size -> {
             val tmpLast = requireNotNull(last)
             val toAdd = Element(t, previous = tmpLast)
@@ -63,6 +64,7 @@ class Stack<T : Comparable<T>> internal constructor(val size: Int, private val o
             onChange()
             true
         }
+
         else -> false
     }
 

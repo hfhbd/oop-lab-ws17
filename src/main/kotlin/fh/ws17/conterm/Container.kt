@@ -2,7 +2,8 @@ package fh.ws17.conterm
 
 import kotlin.time.TimeMark
 
-class Container private constructor(val isStable: Boolean, val beschreibung: String, val id: Int) : Comparable<Container> {
+class Container private constructor(val isStable: Boolean, val beschreibung: String, val id: Int) :
+    Comparable<Container> {
 
     var incomeTime: TimeMark? = null
         internal set
