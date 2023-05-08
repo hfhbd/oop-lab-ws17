@@ -4,7 +4,7 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
     internal val stacks = Stack<Stack<Container>>(this.structure.spaces).apply {
         repeat(size) {
             add(Stack(structure.height) {
-                subscribers.values.forEach { sub ->
+                for (sub in subscribers.values) {
                     sub(this)
                 }
             })
@@ -32,7 +32,7 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
     val used: Int
         get() {
             var used = 0
-            stacks.forEach {
+            for (it in stacks) {
                 used += it.capacity
             }
             return used
@@ -54,7 +54,7 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
     val bestStack: Stack<Container>
         get() {
             val loadableStacks = Stack<Stack<Container>>(size = -1)
-            stacks.forEach {
+            for (it in stacks) {
                 if (this.isLoadable(it)) {
                     loadableStacks.add(it)
                 }

@@ -38,7 +38,7 @@ class Stack<T : Comparable<T>> internal constructor(val size: Int, private val o
     }
 
     fun getDistanceFromTopTo(toSearch: T): Int? {
-        forEachIndexed { index, t ->
+        for((index, t) in withIndex()) {
             if (t == toSearch) {
                 return index
             }
@@ -70,7 +70,7 @@ class Stack<T : Comparable<T>> internal constructor(val size: Int, private val o
 
     override fun toString() = buildString {
         append("Stack with $size used with $capacity:")
-        this@Stack.forEach {
+        for (it in this@Stack) {
             append("{")
             append(it)
             append("}")

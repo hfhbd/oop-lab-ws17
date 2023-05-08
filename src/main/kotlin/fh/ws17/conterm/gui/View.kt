@@ -31,13 +31,13 @@ private fun ContainerButton(
 @Composable
 private fun stockView(stock: ContermStack<ContermStack<Container>>, onContainerClicked: (Container) -> Unit) {
     val containerSize = Modifier.size(64.dp)
-    stock.forEach {
+    for (it in stock) {
         Column {
             val freeSpace = it.size - it.capacity
             repeat(freeSpace) {
                 Spacer(containerSize)
             }
-            it.forEach { container ->
+            for (container in it) {
                 ContainerButton(container, onContainerClicked, containerSize)
             }
         }
