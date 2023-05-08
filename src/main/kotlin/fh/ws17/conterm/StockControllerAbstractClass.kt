@@ -1,12 +1,15 @@
 package fh.ws17.conterm
 
+import kotlin.time.TimeSource
+
 /**
  * Controls the stack
  * Used by the terminal and the vehicle
  */
 abstract class StockControllerAbstractClass internal constructor(
     structure: Stock.Structure,
-    internal val title: String
+    internal val title: String,
+    internal val timeSource: TimeSource.WithComparableMarks
 ) : Iterable<Container> {
 
     internal val stock = Stock(structure)
@@ -40,7 +43,7 @@ abstract class StockControllerAbstractClass internal constructor(
      */
     open fun belade(cont1: Container): Boolean {
         if (this.stock.ladeTop(cont1)) {
-            cont1.incomeTime = Uhr.zeit
+            cont1.incomeTime = timeSource.markNow()
             return true
         }
         return false

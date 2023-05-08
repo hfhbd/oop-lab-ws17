@@ -1,8 +1,16 @@
 package fh.ws17.conterm.gui
 
-import fh.ws17.conterm.*
+import fh.ws17.conterm.CapacityExceededException
+import fh.ws17.conterm.Container
+import fh.ws17.conterm.ContractFailureException
+import fh.ws17.conterm.Vehicle
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
-internal class TransporterViewModel(private val vehicle: Vehicle) : ViewModel(vehicle.title, vehicle.stock) {
+internal class TransporterViewModel(
+    private val vehicle: Vehicle,
+    private val increaseTime: (Duration) -> Unit,
+) : ViewModel(vehicle.title, vehicle.stock) {
     override fun onContainerClicked(container: Container): String {
         val containerID = container.id
         val order = vehicle.auftrag
@@ -14,8 +22,8 @@ internal class TransporterViewModel(private val vehicle: Vehicle) : ViewModel(ve
     }
 
     override fun onBiggerClicked(): String {
-        Uhr.incZeit(1)
-        return "Zeit erhöht um: 1"
+        increaseTime(1.seconds)
+        return "Zeit erhöht um: ${1.seconds}"
     }
 
     override fun onExclamationMarkClicked(): String = try {

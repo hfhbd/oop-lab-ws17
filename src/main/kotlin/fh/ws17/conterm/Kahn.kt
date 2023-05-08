@@ -1,6 +1,8 @@
 package fh.ws17.conterm
 
-class Kahn internal constructor() : Vehicle(1, 3, "Kahn") {
+import kotlin.time.TimeSource
+
+class Kahn(timeSource: TimeSource.WithComparableMarks) : Vehicle(1, 3, "Kahn", timeSource) {
 
     /**
      * Generates an right order to lade the requested container from/ to the vehicle

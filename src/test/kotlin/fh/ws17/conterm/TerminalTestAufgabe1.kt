@@ -1,40 +1,18 @@
 package fh.ws17.conterm
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.testTimeSource
 import kotlin.test.*
+import kotlin.time.Duration.Companion.seconds
 
 class TerminalTestAufgabe1 {
 
-    @BeforeTest
-    fun setUp() {
-        /* vor jedem Test die Uhr zur�cksetzen */
-        Uhr.reset()
-    }
-
     @Test
-    fun testeUhr() {
-
-        /* �ber getInstance() bekommen wir immer die gleiche Uhr */
-        val clock1 = Uhr
-        val clock2 = Uhr
-        assertEquals(clock1, clock2)
-        assertEquals(0, clock1.zeit)
-
-        /* Zeit manuell weiterschalten */
-        clock2.incZeit(10)
-        assertEquals(10, clock1.zeit)
-        clock2.incZeit(3)
-        assertEquals(13, clock1.zeit)
-
-        /* Zeit zur�cksetzen */
-        clock2.reset()
-        assertEquals(0, clock1.zeit)
-    }
-
-    @Test
-    fun testNeuesTerminal() {
+    fun testNeuesTerminal() = runTest {
 
         /* Anlegen eines Container-Terminals mit 4 mal 4 Stellpl�tzen. */
-        val terminal = Terminal(4, 4)
+        val terminal = Terminal(4, 4, testTimeSource)
 
         /* Die Anzahl der eingelagerten Container ist anfangs 0 */
         assertEquals(0, terminal.genutzteKapazitaet)
@@ -67,7 +45,7 @@ class TerminalTestAufgabe1 {
     }
 
     @Test
-    fun testNeuerLKW() {
+    fun testNeuerLKW() = runTest{
         // Anlegen zweier Container
         val cont1 = Container(false, "Luftmatrazen")
         val cont2 = Container(true, "Strandbar")
@@ -80,7 +58,7 @@ class TerminalTestAufgabe1 {
         val cont2Bes = cont2.beschreibung
 
         // Neuer LKW
-        val lkw = LKW()
+        val lkw = LKW(testTimeSource)
 
         // LKW noch leer (1 Containerplatz frei, 0 genutzt)
         assertEquals(0, lkw.genutzteKapazitaet)
@@ -149,8 +127,8 @@ class TerminalTestAufgabe1 {
     }
 
     @Test
-    fun testEinliefern() {
-        val terminal = Terminal(4, 4)
+    fun testEinliefern() = runTest{
+        val terminal = Terminal(4, 4, testTimeSource)
 
         val cont1 = Container(false, "Luftmatrazen")
         val cont2 = Container(true, "Strandbar")
@@ -164,8 +142,8 @@ class TerminalTestAufgabe1 {
          * k�nnen.
          */
 
-        val lkw1 = LKW()
-        lkw1.auftrag = terminal.avisierung(2100, intArrayOf(cont2.id))
+        val lkw1 = LKW(testTimeSource)
+        lkw1.auftrag = terminal.avisierung(2100.seconds, intArrayOf(cont2.id))
         lkw1.belade(cont2)
 
         /*
@@ -175,8 +153,8 @@ class TerminalTestAufgabe1 {
          * der ID c2.id abgeholt (zweites Array).
          */
 
-        val lkw2 = LKW()
-        lkw2.auftrag = terminal.avisierung(2120, intArrayOf(cont1.id), intArrayOf(cont2.id))
+        val lkw2 = LKW(testTimeSource)
+        lkw2.auftrag = terminal.avisierung(2120.seconds, intArrayOf(cont1.id), intArrayOf(cont2.id))
         lkw2.belade(cont1)
 
         assertEquals(1, lkw2.genutzteKapazitaet)
@@ -193,9 +171,9 @@ class TerminalTestAufgabe1 {
          * nicht im TerminalController ist (daher nur eine Containerbewegung).
          */
         // -------------------------------------------
-        Uhr.incZeit(2100)
+        delay(2100.seconds)
         val okLKW1 = terminal.abfertigung(lkw1)
-        Uhr.incZeit(20)
+        delay(20.seconds)
         val okLKW2 = terminal.abfertigung(lkw2)
 
         assertTrue(okLKW1 && okLKW2)
@@ -208,33 +186,32 @@ class TerminalTestAufgabe1 {
         assertTrue(terminal.enthaelt(cont1.id))
         assertFalse(terminal.enthaelt(cont2.id))
         assertEquals(3, terminal.anzahlBewegungen)
-
     }
 
     @Test
-    fun testEinAusliefern() {
+    fun testEinAusliefern() = runTest{
 
         //geändert zu 5,1 vorher 1,5
-        val terminal = Terminal(2, 5)
+        val terminal = Terminal(2, 5, testTimeSource)
 
         val cont1 = Container(false, "Luftmatrazen")
         val cont2 = Container(true, "Strandbar")
 
         /* LKW 1 liefert Container 1 zum TerminalController */
 
-        val lkw1 = LKW()
-        lkw1.auftrag = terminal.avisierung(2100, intArrayOf(cont1.id))
+        val lkw1 = LKW(testTimeSource)
+        lkw1.auftrag = terminal.avisierung(2100.seconds, intArrayOf(cont1.id))
         lkw1.belade(cont1)
-        Uhr.incZeit(2100)
+        delay(2100.seconds)
         val okLKW1 = terminal.abfertigung(lkw1)
         assertTrue(okLKW1)
 
         /* LKW 2 liefert Container 2 und holt Container 1 */
 
-        val lkw2 = LKW()
-        lkw2.auftrag = terminal.avisierung(2160, intArrayOf(cont2.id), intArrayOf(cont1.id))
+        val lkw2 = LKW(testTimeSource)
+        lkw2.auftrag = terminal.avisierung(2160.seconds, intArrayOf(cont2.id), intArrayOf(cont1.id))
         lkw2.belade(cont2)
-        Uhr.incZeit(55)
+        delay(55)
         val okLKW2 = terminal.abfertigung(lkw2)
         assertTrue(okLKW2)
 
@@ -245,26 +222,25 @@ class TerminalTestAufgabe1 {
         assertEquals(1, terminal.genutzteKapazitaet)
         assertEquals(9, terminal.freieKapazitaet)
         assertEquals(3, terminal.anzahlBewegungen)
-
     }
 
     @Test
-    fun testGebuehren() {
+    fun testGebuehren() = runTest {
 
-        val terminal = Terminal(4, 4)
+        val terminal = Terminal(4, 4, testTimeSource)
 
         val c1 = Container(false, "Luftmatrazen")
         val c2 = Container(true, "Strandbar")
 
-        val lkw1 = LKW()
-        lkw1.auftrag = terminal.avisierung(2120, intArrayOf(c1.id))
+        val lkw1 = LKW(testTimeSource)
+        lkw1.auftrag = terminal.avisierung(2120.seconds, intArrayOf(c1.id))
         lkw1.belade(c1)
 
-        val lkw2 = LKW()
-        lkw2.auftrag = terminal.avisierung(2140, intArrayOf(c2.id), intArrayOf(c1.id))
+        val lkw2 = LKW(testTimeSource)
+        lkw2.auftrag = terminal.avisierung(2140.seconds, intArrayOf(c2.id), intArrayOf(c1.id))
         lkw2.belade(c2)
 
-        Uhr.incZeit(2120)
+        delay(2120.seconds)
         val okLKW1 = terminal.abfertigung(lkw1)
         assertEquals(1, terminal.anzahlBewegungen)
 
@@ -275,7 +251,7 @@ class TerminalTestAufgabe1 {
         assertEquals(0.0, terminal.getGebuehren(c2.id))
         assertEquals(fix + 1 * rate, terminal.gebuehren)
 
-        Uhr.incZeit(51)
+        delay(51.seconds)
         val okLKW2 = terminal.abfertigung(lkw2)
         assertEquals(3, terminal.anzahlBewegungen)
         assertTrue(okLKW1 && okLKW2)
@@ -285,7 +261,7 @@ class TerminalTestAufgabe1 {
         assertEquals(fix + 1 * rate, terminal.getGebuehren(c2.id))
         assertEquals(2 * fix + 53 * rate, terminal.gebuehren)
 
-        Uhr.incZeit(1)
+        delay(1.seconds)
 
         /*
          * aktuelle Geb�hren f�r einzelne Container und gesamt: nur c2 im

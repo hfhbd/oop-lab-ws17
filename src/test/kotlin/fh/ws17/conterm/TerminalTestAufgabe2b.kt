@@ -1,17 +1,14 @@
 package fh.ws17.conterm
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.testTimeSource
 import kotlin.test.*
+import kotlin.time.Duration.Companion.seconds
 
 class TerminalTestAufgabe2b {
-
-    @BeforeTest
-    fun setUp() {
-        /* vor jedem Test die Uhr zur�cksetzen */
-        Uhr.reset()
-    }
-
     @Test
-    fun testKapazitaet() {
+    fun testKapazitaet() = runTest{
 
         /* Anlegen von Containern */
         val cont1 = Container(true, "Luftmatrazen")
@@ -22,9 +19,9 @@ class TerminalTestAufgabe2b {
         val cont6 = Container(true, "Handt�cher")
         val cont7 = Container(true, "Wasser")
 
-        val lkw = LKW()
-        val lastzug = Lastzug()
-        val kahn = Kahn()
+        val lkw = LKW(testTimeSource)
+        val lastzug = Lastzug(testTimeSource)
+        val kahn = Kahn(testTimeSource)
 
         /*
 		 * 1. Leerer Lkw wird mit Container 1 beladen.
@@ -114,18 +111,16 @@ class TerminalTestAufgabe2b {
 
 
     @Test
-    fun testContainerDoppeltEinliefern() {
+    fun testContainerDoppeltEinliefern() = runTest{
+        val terminal = Terminal(4, 4, testTimeSource)
 
-
-        val terminal = Terminal(4, 4)
-
-        val t2 = Terminal(4, 4)
+        val t2 = Terminal(4, 4, testTimeSource)
 
         val cont1 = Container(false, "Luftmatrazen")
         val cont2 = Container(true, "M�bel")
         val cont3 = Container(true, "Motorboot")
 
-        val kahn = Kahn()
+        val kahn = Kahn(testTimeSource)
         kahn.belade(cont3)
         kahn.belade(cont2)
         kahn.belade(cont1)
@@ -133,8 +128,8 @@ class TerminalTestAufgabe2b {
         /*
      * Kahn l�dt Container 3 im TerminalController ab
      */
-        kahn.auftrag = (terminal.avisierung(10, intArrayOf(cont3.id), intArrayOf()))
-        Uhr.incZeit(10)
+        kahn.auftrag = (terminal.avisierung(10.seconds, intArrayOf(cont3.id), intArrayOf()))
+        delay(10.seconds)
         terminal.abfertigung(kahn)
 
         /* Um Container 3 abzuladen, m�ssen beide anderen Container kurzfristig eingelagert werden. */
@@ -155,7 +150,7 @@ class TerminalTestAufgabe2b {
         /* Geb�hren */
         val fix = 20.0
         val rate = 1.5
-        Uhr.incZeit(10)
+        delay(10.seconds)
         assertEquals(fix + 1 * rate, terminal.getGebuehren(cont1.id))
         assertEquals(fix + 1 * rate, terminal.getGebuehren(cont2.id))
         assertEquals(fix + 11 * rate, terminal.getGebuehren(cont3.id))
@@ -163,19 +158,19 @@ class TerminalTestAufgabe2b {
         /*
      * Lkw holt Container 3 ab
      */
-        val lkw = LKW()
-        lkw.auftrag = terminal.avisierung(12, intArrayOf(), intArrayOf(cont3.id))
-        Uhr.incZeit(2)
+        val lkw = LKW(testTimeSource)
+        lkw.auftrag = terminal.avisierung(12.seconds, intArrayOf(), intArrayOf(cont3.id))
+        delay(2.seconds)
         terminal.abfertigung(lkw)
 
         /*
      * Lkw l�dt Container 3 ab
      */
-        lkw.auftrag = t2.avisierung(15, intArrayOf(cont3.id), intArrayOf())
-        Uhr.incZeit(3)
+        lkw.auftrag = t2.avisierung(15.seconds, intArrayOf(cont3.id), intArrayOf())
+        delay(3.seconds)
         t2.abfertigung(lkw)
 
-        Uhr.incZeit(10)
+        delay(10.seconds)
 
         /* Geb�hren T1 */
 

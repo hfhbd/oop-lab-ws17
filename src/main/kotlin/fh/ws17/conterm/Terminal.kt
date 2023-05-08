@@ -1,6 +1,15 @@
 package fh.ws17.conterm
 
-class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.Structure(spaces, height), "Terminal") {
+import kotlin.time.ComparableTimeMark
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.ZERO
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
+import kotlin.time.TimeSource
+
+class Terminal(spaces: Int, height: Int, timeSource: TimeSource.WithComparableMarks) : StockControllerAbstractClass(Stock.Structure(spaces, height), "Terminal", timeSource) {
+    private val initTime = timeSource.markNow()
+    
     /**
      * Set of the original orders
      */
@@ -66,7 +75,7 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
      */
     override fun belade(cont1: Container): Boolean {
         if (this.stock.bestStack.add(cont1)) {
-            cont1.incomeTime = Uhr.zeit
+            cont1.incomeTime = timeSource.markNow()
             return true
         }
         return false
@@ -101,11 +110,11 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
      * @return an copy of the order or null if the order is already set
      */
     fun avisierung(
-        scheduledTime: Int,
+        scheduledTime: Duration,
         containerInbound: IntArray = intArrayOf(),
         containerOutbound: IntArray = intArrayOf()
     ): Order? {
-        val order = OrderImpl(scheduledTime, containerInbound, containerOutbound, null, null)
+        val order = OrderImpl(initTime + scheduledTime, containerInbound, containerOutbound, null, null)
         return if (this.charges.add(order)) {
             order.clone()
         } else null
@@ -119,7 +128,7 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
      */
     private fun addTempOrder(id: Int, ids: IntArray) {
         if (id !in ids) {
-            this.charges.add(OrderImpl(Container.toSearch(id)))
+            this.charges.add(OrderImpl(Container.toSearch(id), timeSource))
         }
     }
 
@@ -156,16 +165,16 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
                 this.addTempOrder(c.id, it.containerInbound)
 
                 if (this.belade(c)) {
-                    this.getOrder(it)!!.incomingTime = Uhr.zeit
-                    it.incomingTime = Uhr.zeit
+                    this.getOrder(it)!!.incomingTime = timeSource.markNow()
+                    it.incomingTime = timeSource.markNow()
                 } else {
                     return false
                 }
 
             } else {
                 if (vehicle.belade(this.entlade(move.containerID))) {
-                    this.getOrder(it)!!.outcomingTime = Uhr.zeit
-                    it.outcomingTime = Uhr.zeit
+                    this.getOrder(it)!!.outcomingTime = timeSource.markNow()
+                    it.outcomingTime = timeSource.markNow()
                 } else {
                     return false
                 }
@@ -185,28 +194,30 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
      * @return the fees of the requested container
      */
     fun getGebuehren(id: Int): Double {
-        var incomeTime = -1
-        var outcomeTime = -1
+        var incomeTime: ComparableTimeMark? = null
+        var outcomeTime: ComparableTimeMark? = null
         for (order in charges) {
             for (idO in order.containerInbound) {
-                if (idO == id && order.incomingTime != null) {
-                    incomeTime = order.incomingTime!!
+                val incomingTime = order.incomingTime
+                if (idO == id && incomingTime != null) {
+                    incomeTime = incomingTime
                 }
             }
             for (idO in order.containerOutbound) {
-                if (idO == id && order.outcomingTime != null) {
-                    outcomeTime = order.outcomingTime!!
+                val outcomingTime = order.outcomingTime
+                if (idO == id && outcomingTime != null) {
+                    outcomeTime = outcomingTime
                 }
             }
         }
-        if (incomeTime == -1) {
+        if (incomeTime == null) {
             return 0.0
         }
-        if (outcomeTime == -1) {
-            outcomeTime = Uhr.zeit
+        if (outcomeTime == null) {
+            outcomeTime = timeSource.markNow()
         }
-        outcomeTime += 1
-        var sum = (outcomeTime - incomeTime) * 1.5
+        outcomeTime += 1.seconds
+        var sum = (outcomeTime - incomeTime).toDouble(DurationUnit.SECONDS) * 1.5
         if (sum != 0.0) {
             sum += 20.0
         }
@@ -217,30 +228,30 @@ class Terminal(spaces: Int, height: Int) : StockControllerAbstractClass(Stock.St
 
     interface Order {
         val isOriginal: Boolean
-        val scheduledTime: Int
+        val scheduledTime: ComparableTimeMark
         val containerInbound: IntArray
         val containerOutbound: IntArray
-        var incomingTime: Int?
-        var outcomingTime: Int?
+        var incomingTime: ComparableTimeMark?
+        var outcomingTime: ComparableTimeMark?
         val terminal: Terminal
         fun clone(): Order
     }
 
-    private inner class OrderImpl constructor(
-        override val scheduledTime: Int,
+    private inner class OrderImpl(
+        override val scheduledTime: ComparableTimeMark,
         override val containerInbound: IntArray,
         override val containerOutbound: IntArray,
-        override var incomingTime: Int? = scheduledTime,
-        override var outcomingTime: Int? = scheduledTime
+        override var incomingTime: ComparableTimeMark? = scheduledTime,
+        override var outcomingTime: ComparableTimeMark? = scheduledTime
     ) : Order {
 
         override val terminal: Terminal = this@Terminal
 
         override var isOriginal = true
 
-        constructor(container: Container) : this(Uhr.zeit, intArrayOf(container.id), intArrayOf(container.id))
+        constructor(container: Container, timeSource: TimeSource.WithComparableMarks) : this(timeSource.markNow(), intArrayOf(container.id), intArrayOf(container.id))
 
-        override fun hashCode(): Int = scheduledTime + containerInbound.hashCode() + containerOutbound.hashCode()
+        override fun hashCode(): Int = scheduledTime.hashCode() + containerInbound.hashCode() + containerOutbound.hashCode()
 
         override fun clone(): Order {
             return OrderImpl(scheduledTime, containerInbound, containerOutbound, incomingTime, outcomingTime).apply {
