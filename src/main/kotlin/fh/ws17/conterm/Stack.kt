@@ -12,26 +12,24 @@ class Stack<T : Comparable<T>> internal constructor(val size: Int, private val o
     /**
      * From Top to Bottom!!
      */
-    override fun iterator(): Iterator<T> {
-        return object : Iterator<T> {
+    override fun iterator(): Iterator<T> = object : Iterator<T> {
 
-            private var current = last
+        private var current = last
 
-            override fun hasNext() = current != null
+        override fun hasNext() = current != null
 
-            override fun next(): T {
-                val tmpCurrent = requireNotNull(current)
-                val toReturn = tmpCurrent.content
-                current = tmpCurrent.previous
-                return toReturn
-            }
+        override fun next(): T {
+            val tmpCurrent = requireNotNull(current)
+            val toReturn = tmpCurrent.content
+            current = tmpCurrent.previous
+            return toReturn
         }
     }
 
-    fun seeTop(): T? = this.last?.content
+    fun seeTop(): T? = last?.content
 
     fun deleteTop(): T {
-        val last = requireNotNull(this.last)
+        val last = requireNotNull(last)
         val t = last.content
         this.last = last.previous
         capacity -= 1
@@ -87,9 +85,7 @@ class Stack<T : Comparable<T>> internal constructor(val size: Int, private val o
 
         other as Stack<*>
 
-        if (last != other.last) return false
-
-        return true
+        return last == other.last
     }
 
     override fun hashCode(): Int = last?.hashCode() ?: 0

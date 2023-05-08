@@ -1,3 +1,6 @@
+[libraries]
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version = "1.7.0" }
+
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "1.8.20" }
 compose = { id = "org.jetbrains.compose", version = "1.4.0" }

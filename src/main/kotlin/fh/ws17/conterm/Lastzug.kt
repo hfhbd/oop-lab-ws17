@@ -1,6 +1,8 @@
 package fh.ws17.conterm
 
-class Lastzug internal constructor() : Vehicle(2, 1, "Lastzug") {
+import kotlin.time.TimeSource
+
+class Lastzug(timeSource: TimeSource.WithComparableMarks) : Vehicle(2, 1, "Lastzug", timeSource) {
 
     /**
      * add each requested container id the the moves stack

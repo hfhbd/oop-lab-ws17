@@ -1,6 +1,13 @@
 package fh.ws17.conterm
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.testTimeSource
 import kotlin.test.*
+import kotlin.time.ComparableTimeMark
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 
 /**
  * Tests f�r Aufgabe 2
@@ -19,14 +26,8 @@ import kotlin.test.*
 
 class TerminalTestAufgabe2 {
 
-    @BeforeTest
-    fun setUp() {
-        /* vor jedem Test die Uhr zur�cksetzen */
-        Uhr.reset()
-    }
-
     @Test
-    fun testNeuerLastzug() {
+    fun testNeuerLastzug() = runTest {
         /* Anlegen zweier Container */
         val cont1 = Container(true, "Luftmatrazen")
         val cont2 = Container(true, "Strandbar")
@@ -34,7 +35,7 @@ class TerminalTestAufgabe2 {
 
         /* Einzige Methode zum Beladen eines Lastzugs ist wieder die
      * belade-Methode, zum Abladen die entlade-Methode. */
-        val lastzug = Lastzug()
+        val lastzug = Lastzug(testTimeSource)
 
         /* Kahn ist anfangs leer */
         assertEquals(0, lastzug.genutzteKapazitaet)
@@ -87,7 +88,7 @@ class TerminalTestAufgabe2 {
     }
 
     @Test
-    fun testNeuerKahn() {
+    fun testNeuerKahn() = runTest {
         /* Anlegen zweier Container */
         val cont1 = Container(true, "Luftmatrazen")
         val cont2 = Container(true, "Strandbar")
@@ -100,7 +101,7 @@ class TerminalTestAufgabe2 {
      * dem Kahn ergibt sich durch die Reihenfolge der Aufrufe von belade und
      * entlade.
      */
-        val kahn = Kahn()
+        val kahn = Kahn(testTimeSource)
 
         /* Kahn ist anfangs leer */
         assertEquals(0, kahn.genutzteKapazitaet)
@@ -173,9 +174,9 @@ class TerminalTestAufgabe2 {
     }
 
     @Test
-    fun testKahnStapelLS() {
+    fun testKahnStapelLS() = runTest {
 
-        val kahn = Kahn()
+        val kahn = Kahn(testTimeSource)
         val cont1 = Container(false, "Luftmatrazen")
         val cont2 = Container(true, "Strandbar")
 
@@ -191,9 +192,9 @@ class TerminalTestAufgabe2 {
     }
 
     @Test
-    fun testKahnStapelSL() {
+    fun testKahnStapelSL() = runTest {
 
-        val kahn = Kahn()
+        val kahn = Kahn(testTimeSource)
         val cont1 = Container(false, "Luftmatrazen")
         val cont2 = Container(true, "Strandbar")
 
@@ -210,15 +211,15 @@ class TerminalTestAufgabe2 {
     }
 
     @Test
-    fun testEinliefern() {
+    fun testEinliefern() = runTest {
 
-        val terminal = Terminal(4, 4)
+        val terminal = Terminal(4, 4, testTimeSource)
 
         val cont1 = Container(false, "Luftmatrazen")
         val cont2 = Container(true, "M�bel")
         val cont3 = Container(true, "Motorboot")
 
-        val kahn = Kahn()
+        val kahn = Kahn(testTimeSource)
         kahn.belade(cont3)
         kahn.belade(cont2)
         kahn.belade(cont1)
@@ -230,8 +231,8 @@ class TerminalTestAufgabe2 {
          * eine einfache Einlagerungs-Strategie, Sie m�ssen die Anzahl der
          * Container-Bewegungen nicht minimieren.)
          */
-        kahn.auftrag = terminal.avisierung(10, intArrayOf(cont3.id))
-        Uhr.incZeit(10)
+        kahn.auftrag = terminal.avisierung(10.seconds, intArrayOf(cont3.id))
+        delay(10.seconds)
         terminal.abfertigung(kahn)
 
         /*
@@ -256,7 +257,7 @@ class TerminalTestAufgabe2 {
         /* Geb�hren */
         val fix = 20.0
         val rate = 1.5
-        Uhr.incZeit(10)
+        delay(10.seconds)
         assertEquals(fix + 1 * rate, terminal.getGebuehren(cont1.id))
         assertEquals(fix + 1 * rate, terminal.getGebuehren(cont2.id))
         assertEquals(fix + 11 * rate, terminal.getGebuehren(cont3.id))
@@ -266,8 +267,13 @@ class TerminalTestAufgabe2 {
     /**
      * Hilfsfunktion zum Anliefern dreier Container mit einem Kahn
      */
-    private fun anliefernKahn(zeit: Int, t: Terminal, klappt: Boolean): Kahn {
-        val kahn = Kahn()
+    private suspend fun anliefernKahn(
+        timeSource: TimeSource.WithComparableMarks,
+        zeit: Duration,
+        t: Terminal,
+        klappt: Boolean
+    ): Kahn {
+        val kahn = Kahn(timeSource)
         val cont1 = Container(false, "Luftmatrazen")
         val cont2 = Container(true, "M�bel")
         val cont3 = Container(true, "Motorboot")
@@ -276,17 +282,17 @@ class TerminalTestAufgabe2 {
         kahn.belade(cont1)
 
         kahn.auftrag = t.avisierung(zeit, intArrayOf(cont1.id, cont2.id, cont3.id))
-        Uhr.incZeit(10)
+        delay(10.seconds)
         val ok = t.abfertigung(kahn)
         assertEquals(ok, klappt)
         return kahn
     }
 
     @Test
-    fun testeKapazitaet2x2() {
+    fun testeKapazitaet2x2() = runTest {
 
-        val t1 = Terminal(2, 2)
-        val k1 = anliefernKahn(10, t1, true)
+        val t1 = Terminal(2, 2, testTimeSource)
+        val k1 = anliefernKahn(testTimeSource, 10.seconds, t1, true)
         assertEquals(3, t1.genutzteKapazitaet)
         assertEquals(1, t1.freieKapazitaet)
         assertEquals(3, t1.anzahlBewegungen)
@@ -295,7 +301,7 @@ class TerminalTestAufgabe2 {
         try { // Dieses Kommando in Abgabe 1+2 ignorieren
 
             /* scheitert, weil nicht genug Kapazit�t vorhanden ist */
-            val k2 = anliefernKahn(20, t1, false)
+            val k2 = anliefernKahn(testTimeSource, 10.seconds, t1, false)
             assertEquals(0, k2.freieKapazitaet)
 
         } catch (e: Exception) {
@@ -309,16 +315,16 @@ class TerminalTestAufgabe2 {
     }
 
     @Test
-    fun testeKapazitaet4x2() {
+    fun testeKapazitaet4x2() = runTest {
 
-        val t1 = Terminal(4, 2)
-        val k1 = anliefernKahn(10, t1, true)
+        val t1 = Terminal(4, 2, testTimeSource)
+        val k1 = anliefernKahn(testTimeSource, 10.seconds, t1, true)
         assertEquals(3, t1.genutzteKapazitaet)
         assertEquals(5, t1.freieKapazitaet)
         assertEquals(3, t1.anzahlBewegungen)
         assertEquals(3, k1.freieKapazitaet)
         /* viel Platz, kein Problem */
-        val k2 = anliefernKahn(20, t1, true)
+        val k2 = anliefernKahn(testTimeSource, 20.seconds, t1, true)
         assertEquals(6, t1.genutzteKapazitaet)
         assertEquals(2, t1.freieKapazitaet)
         assertEquals(6, t1.anzahlBewegungen)

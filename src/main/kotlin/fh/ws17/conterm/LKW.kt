@@ -1,6 +1,8 @@
 package fh.ws17.conterm
 
-class LKW internal constructor() : Vehicle(1, 1, "LKW") {
+import kotlin.time.TimeSource
+
+class LKW(timeSource: TimeSource.WithComparableMarks) : Vehicle(1, 1, "LKW", timeSource) {
 
     /**
      * add the requested container to the moves stack

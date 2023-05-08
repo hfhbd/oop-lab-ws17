@@ -7,10 +7,17 @@ plugins {
 dependencies {
     implementation(compose.desktop.currentOs)
     testImplementation(kotlin("test-junit"))
+    testImplementation(libs.coroutines.test)
 }
 
 kotlin {
     jvmToolchain(11)
+
+    sourceSets {
+        configureEach {
+            languageSettings.optIn("kotlin.time.ExperimentalTime")
+        }
+    }
 }
 
 compose.desktop {

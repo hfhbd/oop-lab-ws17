@@ -1,18 +1,15 @@
 package fh.ws17.conterm
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.testTimeSource
 import kotlin.test.*
-
+import kotlin.time.Duration.Companion.seconds
 
 class OtherTests {
-
-    @BeforeTest
-    fun reset() {
-        Uhr.reset()
-    }
-
     @Test
-    fun capacityFull() {
-        val terminal = Terminal(max, max)
+    fun capacityFull() = runTest {
+        val terminal = Terminal(max, max, testTimeSource)
         for (i in 0 until max * max) {
             terminal.belade(Container(true, ""))
         }
@@ -27,14 +24,14 @@ class OtherTests {
     }
 
     @Test
-    fun testIDsNotInVehicle() {
-        val terminal = Terminal(max, max)
+    fun testIDsNotInVehicle() = runTest {
+        val terminal = Terminal(max, max, testTimeSource)
 
         assertEquals(max * max, terminal.freieKapazitaet)
         assertEquals(0, terminal.genutzteKapazitaet)
         assertEquals(0, terminal.anzahlBewegungen)
 
-        val vehicle = Kahn()
+        val vehicle = Kahn(testTimeSource)
         val contTrue1 = Container(true, "Kahn1True")
         val contTrue2 = Container(true, "Kahn2True")
         val contFalse1 = Container(false, "Kahn3False")
@@ -42,44 +39,44 @@ class OtherTests {
         vehicle.belade(contTrue2)
         vehicle.belade(contFalse1)
 
-        vehicle.auftrag = terminal.avisierung(10, intArrayOf(contFalse1.id, contTrue1.id), intArrayOf())
-        Uhr.incZeit(10)
+        vehicle.auftrag = terminal.avisierung(10.seconds, intArrayOf(contFalse1.id, contTrue1.id), intArrayOf())
+        delay(10.seconds)
         terminal.abfertigung(vehicle)
 
-        vehicle.auftrag = terminal.avisierung(20, intArrayOf(contFalse1.id, contTrue1.id), intArrayOf())
-        Uhr.incZeit(10)
+        vehicle.auftrag = terminal.avisierung(20.seconds, intArrayOf(contFalse1.id, contTrue1.id), intArrayOf())
+        delay(10.seconds)
         assertFailsWith<ContractFailureException> {
             terminal.abfertigung(vehicle)
         }
     }
 
     @Test
-    fun vehicleFull() {
-        val terminal = Terminal(max, max)
+    fun vehicleFull() = runTest {
+        val terminal = Terminal(max, max, testTimeSource)
         val c1 = Container(false, "")
         val c2 = Container(false, "")
         terminal.belade(c1)
         terminal.belade(c2)
 
-        val vehicle = LKW()
-        vehicle.auftrag = terminal.avisierung(10, intArrayOf(), intArrayOf(c1.id))
+        val vehicle = LKW(testTimeSource)
+        vehicle.auftrag = terminal.avisierung(10.seconds, intArrayOf(), intArrayOf(c1.id))
 
-        Uhr.incZeit(10)
+        delay(10.seconds)
         assertTrue(terminal.abfertigung(vehicle))
 
-        vehicle.auftrag = terminal.avisierung(20, intArrayOf(), intArrayOf(c1.id))
-        Uhr.incZeit(10)
+        vehicle.auftrag = terminal.avisierung(20.seconds, intArrayOf(), intArrayOf(c1.id))
+        delay(10.seconds)
         assertFailsWith<ContractFailureException> { terminal.abfertigung(vehicle) }
     }
 
     @Test
-    fun testIDsNotInTerminal() {
-        val terminal = Terminal(max, max)
-        val vehicle = LKW()
+    fun testIDsNotInTerminal() = runTest{
+        val terminal = Terminal(max, max, testTimeSource)
+        val vehicle = LKW(testTimeSource)
         val container = Container(false, "")
         vehicle.belade(container)
-        vehicle.auftrag = terminal.avisierung(10, intArrayOf(), intArrayOf(container.id))
-        Uhr.incZeit(10)
+        vehicle.auftrag = terminal.avisierung(10.seconds, intArrayOf(), intArrayOf(container.id))
+        delay(10.seconds)
         assertFailsWith<ContractFailureException> {
             terminal.abfertigung(vehicle)
         }

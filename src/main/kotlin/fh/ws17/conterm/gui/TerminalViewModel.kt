@@ -1,8 +1,14 @@
 package fh.ws17.conterm.gui
 
-import fh.ws17.conterm.*
+import fh.ws17.conterm.Container
+import fh.ws17.conterm.Terminal
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
-internal class TerminalViewModel(private val terminal: Terminal) : ViewModel(terminal.title, terminal.stock) {
+internal class TerminalViewModel(
+    private val terminal: Terminal,
+    private val increaseTime: (Duration) -> Unit
+) : ViewModel(terminal.title, terminal.stock) {
     override fun onContainerClicked(container: Container): String =
         """
            ID: ${container.id}
@@ -11,8 +17,8 @@ internal class TerminalViewModel(private val terminal: Terminal) : ViewModel(ter
         """.trimIndent()
 
     override fun onBiggerClicked(): String {
-        Uhr.incZeit(10)
-        return "Zeit erhöht um: 10"
+        increaseTime(10.seconds)
+        return "Zeit erhöht um: ${10.seconds}"
     }
 
     override fun onExclamationMarkClicked(): String {

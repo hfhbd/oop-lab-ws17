@@ -59,7 +59,8 @@ internal fun View(viewModel: ViewModel) {
             onCloseRequest = { show = false }, title = viewModel.title, resizable = true,
             state = WindowState(size = DpSize(400.dp, 300.dp))
         ) {
-            val stock by viewModel.toState()
+            val coroutineScope = rememberCoroutineScope()
+            val stock by remember { viewModel.asFlow(coroutineScope) }.collectAsState()
             var text: String? by remember { mutableStateOf(null) }
             Column {
                 Row {

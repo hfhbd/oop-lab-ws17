@@ -1,13 +1,11 @@
 package fh.ws17.conterm
 
-import androidx.compose.runtime.*
-
 internal class Stock(private val structure: Structure) : Iterable<Container> {
     internal val stacks = Stack<Stack<Container>>(this.structure.spaces).apply {
         repeat(size) {
-            this.add(Stack(this@Stock.structure.height) {
-                subscribers.values.forEach {
-                    it(this)
+            add(Stack(structure.height) {
+                subscribers.values.forEach { sub ->
+                    sub(this)
                 }
             })
         }
@@ -15,6 +13,7 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
 
     private var subscribers: MutableMap<Int, (Stack<Stack<Container>>) -> Unit> = mutableMapOf()
     private var counter = 0
+
     fun subscribe(onUpdate: (Stack<Stack<Container>>) -> Unit): Int {
         subscribers[counter] = onUpdate
         counter += 1
@@ -54,7 +53,6 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
      */
     val bestStack: Stack<Container>
         get() {
-
             val loadableStacks = Stack<Stack<Container>>(size = -1)
             stacks.forEach {
                 if (this.isLoadable(it)) {
@@ -85,8 +83,8 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
      */
     operator fun contains(containerID: Int): Boolean {
         val toSearch = Container.toSearch(containerID)
-        for (stack in this.stacks) {
-            if (stack.contains(toSearch)) {
+        for (stack in stacks) {
+            if (toSearch in stack) {
                 return true
             }
         }
@@ -100,12 +98,12 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
      * @return true if success
      */
     fun ladeTop(container: Container): Boolean {
-        if (this.contains(container.id)) {
+        if (container.id in this) {
             return false
         }
 
-        for (stack in this.stacks) {
-            if (this.isLoadable(stack)) {
+        for (stack in stacks) {
+            if (isLoadable(stack)) {
                 return stack.add(container)
             }
         }
@@ -122,12 +120,8 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
      * @throws ContractFailureException if not found
      */
     fun unladeTop(id: Int): Container {
-        if (!this.contains(id)) {
-            throw ContractFailureException()
-        }
-
         val toSearch = Container.toSearch(id)
-        for (stack in this.stacks) {
+        for (stack in stacks) {
             if (stack.seeTop() != null && stack.seeTop() == toSearch) {
                 return stack.deleteTop()
             }
@@ -142,8 +136,9 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
      * @return the right stack
      */
     fun getRightStack(id: Int): Stack<Container>? {
-        for (stack in this.stacks) {
-            if (stack.contains(Container.toSearch(id))) {
+        val toSearch = Container.toSearch(id)
+        for (stack in stacks) {
+            if (toSearch in stack) {
                 return stack
             }
         }
@@ -151,17 +146,17 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
     }
 
     /**
-     * Returns an other stack containing not the requested container
-     * Used to transhipping in the terminal
+     * Returns another stack containing not the requested container
+     * Used to transshipping in the terminal.
      *
      * @param id of the requested container
      * @return stack with the requested container
-     * @throws ContractFailureException if no other stack was found or the container was not found
+     * @throws ContractFailureException if no other stack was found, or the container was not found.
      */
     fun getOtherStack(id: Int): Stack<Container> {
-        val rightStack = this.getRightStack(id)
+        val rightStack = getRightStack(id)
         for (stack in this.stacks) {
-            if (stack != rightStack && this.isLoadable(stack)) {
+            if (stack != rightStack && isLoadable(stack)) {
                 return stack
             }
         }
@@ -177,42 +172,33 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
      * @return the iterator
      */
     override fun iterator() = object : Iterator<Container> {
-
         var index: Int = 0
-        var containerIterator = this@Stock.stacks.elementAt(this.index).iterator()
+        var containerIterator = stacks.elementAt(this.index).iterator()
 
         /**
-         * First every container stack, than the next stack
+         * First every container stack, then the next stack
          * @return true if a container is found
          */
-        /**
-         * First every container stack, than the next stack
-         * @return true if a container is found
-         */
-        override fun hasNext(): Boolean {
-            return when {
-                this.containerIterator.hasNext() -> true
-                this.index != this@Stock.stacks.size -> {
-                    this.index++
-                    if (this.index == this@Stock.stacks.size) {
-                        return false
-                    }
-                    this.containerIterator = this@Stock.stacks.elementAt(index).iterator()
-                    this.hasNext()
+        override fun hasNext(): Boolean = when {
+            containerIterator.hasNext() -> true
+            index != stacks.size -> {
+                index++
+                if (index == stacks.size) {
+                    false
+                } else {
+                    containerIterator = stacks.elementAt(index).iterator()
+                    hasNext()
                 }
-                else -> false
             }
+
+            else -> false
         }
 
         /**
          * Returns the next of the stack iterator
          * @return the next iterator
          */
-        /**
-         * Returns the next of the stack iterator
-         * @return the next iterator
-         */
-        override fun next() = this.containerIterator.next()
+        override fun next() = containerIterator.next()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -221,9 +207,7 @@ internal class Stock(private val structure: Structure) : Iterable<Container> {
 
         other as Stock
 
-        if (stacks != other.stacks) return false
-
-        return true
+        return stacks == other.stacks
     }
 
     override fun hashCode(): Int {

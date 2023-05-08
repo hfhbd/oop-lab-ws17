@@ -1,8 +1,10 @@
 package fh.ws17.conterm
 
+import kotlin.time.TimeMark
+
 class Container private constructor(val isStable: Boolean, val beschreibung: String, val id: Int) : Comparable<Container> {
 
-    var incomeTime: Int? = null
+    var incomeTime: TimeMark? = null
         internal set
 
     constructor(stable: Boolean, beschreibung: String) : this(stable, beschreibung, idCounter++)
