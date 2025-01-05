@@ -33,3 +33,4 @@ dependencyResolutionManagement {
 rootProject.name = "oop-lab-ws17"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
