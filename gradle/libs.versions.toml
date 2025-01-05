@@ -1,7 +1,11 @@
+[versions]
+kotlin = "2.1.0"
+
 [libraries]
-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version = "1.9.0" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version = "1.10.1" }
 
 [plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "1.9.23" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version = "1.7.3" }
 licensee = { id = "app.cash.licensee", version = "1.12.0" }

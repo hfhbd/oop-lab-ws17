@@ -15,13 +15,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import fh.ws17.conterm.Container
+import oop_lab_ws17.generated.resources.Res
+import oop_lab_ws17.generated.resources.container
+import org.jetbrains.compose.resources.painterResource
 import fh.ws17.conterm.Stack as ContermStack
 
 @Composable
@@ -29,7 +31,7 @@ private fun ContainerButton(
     container: Container,
     onClick: (Container) -> Unit,
     modifier: Modifier,
-    image: Painter = painterResource("Container.jpg")
+    image: Painter = painterResource(Res.drawable.container)
 ) =
     Button(onClick = { onClick(container) }, modifier = modifier) {
         val colorFilter = if (container.isStable) {
@@ -97,7 +99,7 @@ internal fun View(viewModel: ViewModel) {
                 }
             }
             text?.let {
-                Dialog(onCloseRequest = {
+                DialogWindow(onCloseRequest = {
                     text = null
                 }, title = "Information") {
                     Column {
