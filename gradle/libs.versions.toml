@@ -2,7 +2,7 @@
 kotlin = "2.1.20"
 
 [libraries]
-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version = "1.10.1" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version = "1.10.2" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
