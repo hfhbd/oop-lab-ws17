@@ -7,5 +7,5 @@ coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", ve
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-compose = { id = "org.jetbrains.compose", version = "1.8.0" }
+compose = { id = "org.jetbrains.compose", version = "1.8.1" }
 licensee = { id = "app.cash.licensee", version = "1.13.0" }
