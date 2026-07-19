@@ -8,9 +8,15 @@ plugins {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation(compose.components.resources)
+}
 
-    testImplementation(kotlin("test-junit5"))
-    testImplementation(libs.coroutines.test)
+testing.suites {
+    named("test", JvmTestSuite::class) {
+        useKotlinTest()
+        dependencies {
+            implementation(libs.coroutines.test)
+        }
+    }
 }
 
 kotlin {
