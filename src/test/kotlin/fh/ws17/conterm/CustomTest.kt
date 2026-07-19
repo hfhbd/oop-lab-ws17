@@ -50,7 +50,6 @@ class CustomTest {
         }
     }
 
-
     @Test
     fun containerNotInTerminal() = runTest {
         val cont1 = Container(false, "Luftmatrazen")
