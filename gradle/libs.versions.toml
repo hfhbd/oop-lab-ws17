@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.4.20"
-compose = "1.12.0"
+compose = "1.12.1"
 
 [libraries]
 compose-resources = {module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
